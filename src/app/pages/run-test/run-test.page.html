@@ -1,0 +1,156 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Run New Test
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" href="/login/">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Run New Test</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-item>
+    <ion-label>Test Name</ion-label>
+    <ion-select placeholder="Select test">
+      <ion-select-option value="f">PAA</ion-select-option>
+      <ion-select-option value="m">XXX</ion-select-option>
+    </ion-select>
+    <ion-button fill="clear">
+      <ion-icon name="cloud-download"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Batch Number</ion-label>
+    <ion-input type="text"></ion-input>
+  </ion-item>
+  
+  <ion-item>
+    <ion-label>Carousel Audit</ion-label>
+    <ion-input type="text"></ion-input>
+  </ion-item>
+
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>Reagents</ion-label>
+    </ion-item-divider>
+    <ion-item>
+      <ion-label>INT STD Lot</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-button fill="clear">
+        <ion-icon name="qr-code"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>IQC Lot</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-button fill="clear">
+        <ion-icon name="qr-code"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>ACN Lot</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-button fill="clear">
+        <ion-icon name="qr-code"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>MEQH Lot</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-button fill="clear">
+        <ion-icon name="qr-code"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>TEA Lot</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-button fill="clear">
+        <ion-icon name="qr-code"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-item-group>
+ 
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>Equipment</ion-label>
+      <ion-button slot="end" fill="clear">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-item-divider>
+     <ion-list>
+      <ion-item>
+        <ion-label>Pipette #1</ion-label>
+        <ion-input type="text"></ion-input>
+        <ion-button slot="end" fill="clear">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-label>Pipette #2</ion-label>
+        <ion-input type="text"></ion-input>
+        <ion-button slot="end" fill="clear">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>     
+    </ion-list>
+  </ion-item-group>
+
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>Dates</ion-label>
+    </ion-item-divider>
+    <ion-item>
+      <ion-label>Mobile Phase A</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>Mobile Phase B</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+    </ion-item>  
+    <ion-item>
+      <ion-label>Seal Wash Date</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+    </ion-item>  
+    <ion-item>
+      <ion-label>Needle Wash Date</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+    </ion-item> 
+    <ion-item>
+      <ion-label>100% MeOH Date</ion-label>
+      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+    </ion-item> 
+  </ion-item-group>
+
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>Others</ion-label>
+    </ion-item-divider>
+    <ion-item>
+      <ion-label>Sample preparation by</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Run set up by</ion-label>
+      <ion-input type="text"></ion-input>
+      <ion-label>On</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Maint. and log completed by</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+  </ion-item-group>
+
+  <ion-button id="save" expand="block">Save</ion-button>
+  
+</ion-content>
