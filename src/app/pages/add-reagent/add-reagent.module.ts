@@ -6,6 +6,7 @@ import { AddReagentPage } from './add-reagent.page';
 import { ExploreContainerComponentModule } from '../../explore-container/explore-container.module';
 
 import { AddReagentPageRoutingModule } from './add-reagent-routing.module';
+import { FormBuilder, FormControl, ReactiveFormsModule, FormArray} from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -13,7 +14,9 @@ import { AddReagentPageRoutingModule } from './add-reagent-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    AddReagentPageRoutingModule
+    AddReagentPageRoutingModule,
+
+    ReactiveFormsModule
   ],
   declarations: [AddReagentPage]
 })
