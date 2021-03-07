@@ -18,139 +18,170 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-item>
-    <ion-label>Test Name</ion-label>
-    <ion-select placeholder="Select test">
-      <ion-select-option value="f">PAA</ion-select-option>
-      <ion-select-option value="m">XXX</ion-select-option>
-    </ion-select>
-    <ion-button fill="clear">
-      <ion-icon name="cloud-download"></ion-icon>
-    </ion-button>
-  </ion-item>
+  <form [formGroup]="testForm" (ngSubmit)="submitForm()">
+    <ion-item>
+      <ion-label position="stacked">Test Name</ion-label>
+      <ion-select placeholder="Select test">
+        <ion-select-option value="f">PAA</ion-select-option>
+        <ion-select-option value="m">XXX</ion-select-option>
+      </ion-select>
+      <ion-button fill="clear" slot="end" class="ion-align-self-center">
+        <ion-icon name="cloud-download"></ion-icon>
+      </ion-button>
+    </ion-item>
 
-  <ion-item>
-    <ion-label>Batch Number</ion-label>
-    <ion-input type="text"></ion-input>
-  </ion-item>
-  
-  <ion-item>
-    <ion-label>Carousel Audit</ion-label>
-    <ion-input type="text"></ion-input>
-  </ion-item>
-
-  <ion-item-group>
-    <ion-item-divider>
-      <ion-label>Reagents</ion-label>
-    </ion-item-divider>
     <ion-item>
-      <ion-label>INT STD Lot</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-button fill="clear">
-        <ion-icon name="qr-code"></ion-icon>
-      </ion-button>
+      <ion-label position="stacked">Batch Number</ion-label>
+      <ion-input formControlName="batchNumber" type="text" placeholder="Enter Batch Number"></ion-input>
     </ion-item>
-    <ion-item>
-      <ion-label>IQC Lot</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-button fill="clear">
-        <ion-icon name="qr-code"></ion-icon>
-      </ion-button>
-    </ion-item>
-    <ion-item>
-      <ion-label>ACN Lot</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-button fill="clear">
-        <ion-icon name="qr-code"></ion-icon>
-      </ion-button>
-    </ion-item>
-    <ion-item>
-      <ion-label>MEQH Lot</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-button fill="clear">
-        <ion-icon name="qr-code"></ion-icon>
-      </ion-button>
-    </ion-item>
-    <ion-item>
-      <ion-label>TEA Lot</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-button fill="clear">
-        <ion-icon name="qr-code"></ion-icon>
-      </ion-button>
-    </ion-item>
-  </ion-item-group>
- 
-  <ion-item-group>
-    <ion-item-divider>
-      <ion-label>Equipment</ion-label>
-      <ion-button slot="end" fill="clear">
-        <ion-icon name="add-outline"></ion-icon>
-      </ion-button>
-    </ion-item-divider>
-     <ion-list>
-      <ion-item>
-        <ion-label>Pipette #1</ion-label>
-        <ion-input type="text"></ion-input>
-        <ion-button slot="end" fill="clear">
-          <ion-icon name="trash"></ion-icon>
+    
+    <ion-list>
+      <ion-list-header lines="full">
+        <ion-label>Reagents</ion-label>
+        <ion-button fill="clear">
+          <ion-icon name="add-outline"></ion-icon>
         </ion-button>
+      </ion-list-header>
+        <ion-item>
+          <ion-label position="stacked">INT STD Lot</ion-label>
+          <ion-input type="text" placeholder="Scan QR code"></ion-input>
+          <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">IQC Lot</ion-label>
+          <ion-input type="text" placeholder="Scan QR code"></ion-input>
+          <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">ACN Lot</ion-label>
+          <ion-input type="text" placeholder="Scan QR code"></ion-input>
+          <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">MEQH Lot</ion-label>
+          <ion-input type="text" placeholder="Scan QR code"></ion-input>
+          <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">TEA Lot</ion-label>
+          <ion-input type="text" placeholder="Scan QR code"></ion-input>
+          <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-item>
+    </ion-list>
+  
+    <ion-list>
+      <ion-list-header lines="full">
+        <ion-label>Equipment</ion-label>
+        <ion-button fill="clear" (click)="addEqpt()">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-button>
+      </ion-list-header>
+      <div
+        formArrayName="equipment"
+        *ngFor="let item of testForm.get('equipment')['controls']; let i = index;"
+      >
+        <div [formGroupName]="i">
+          <ion-item>
+            <ion-label position="stacked">Pipette #{{i+1}}</ion-label>
+            <ion-input formControlName="pipette" type="text" placeholder="Enter Pipette ID"></ion-input>
+            <ion-button slot="end" fill="clear" class="ion-align-self-center" (click)=removeEqpt(i)>
+              <ion-icon name="trash"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+        <!-- Exposed item name: {{testForm.controls.equipment.controls[i].controls.pipette.value}} -->
+        <!-- Exposed item name: {{testForm.controls.equipment.controls[i].value}} -->
+      </div>
+    </ion-list>
+
+    <ion-list>
+      <ion-list-header lines="full">
+        <ion-label>Others</ion-label>
+        <ion-button fill="clear">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-button>
+      </ion-list-header>
+      <ion-item>
+        <ion-label position="stacked">Mobile Phase A</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
       </ion-item>
       <ion-item>
-        <ion-label>Pipette #2</ion-label>
-        <ion-input type="text"></ion-input>
-        <ion-button slot="end" fill="clear">
-          <ion-icon name="trash"></ion-icon>
-        </ion-button>
-      </ion-item>     
+        <ion-label position="stacked">Mobile Phase B</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+      </ion-item>  
+      <ion-item>
+        <ion-label position="stacked">Seal Wash Date</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+      </ion-item>  
+      <ion-item>
+        <ion-label position="stacked">Needle Wash Date</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+      </ion-item> 
+      <ion-item>
+        <ion-label position="stacked">100% MeOH Date</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+      </ion-item> 
+      <ion-item>
+        <ion-label position="stacked">Carousel Audit</ion-label>
+        <ion-input type="text" placeholder="Enter Input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Sample preparation by</ion-label>
+        <ion-input type="text" placeholder="Enter Input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Run set up by</ion-label>
+        <ion-input type="text" placeholder="Enter Input"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Maint. and log completed by</ion-label>
+        <ion-input type="text" placeholder="Enter Input"></ion-input>
+      </ion-item>
     </ion-list>
-  </ion-item-group>
+    
+    <ion-button type="submit" id="save" expand="block">Save</ion-button>
 
-  <ion-item-group>
-    <ion-item-divider>
-      <ion-label>Dates</ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-label>Mobile Phase A</ion-label>
-      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
-    </ion-item>
-    <ion-item>
-      <ion-label>Mobile Phase B</ion-label>
-      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
-    </ion-item>  
-    <ion-item>
-      <ion-label>Seal Wash Date</ion-label>
-      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
-    </ion-item>  
-    <ion-item>
-      <ion-label>Needle Wash Date</ion-label>
-      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
-    </ion-item> 
-    <ion-item>
-      <ion-label>100% MeOH Date</ion-label>
-      <ion-datetime displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
-    </ion-item> 
-  </ion-item-group>
+  </form>
+  form value: <br>{{testForm.value | json}}
+  
+  <!-- <form [formGroup]="testForm" (ngSubmit)="submitForm()" novalidate>
 
-  <ion-item-group>
-    <ion-item-divider>
-      <ion-label>Others</ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-label>Sample preparation by</ion-label>
-      <ion-input type="text"></ion-input>
+    <ion-item lines="full">
+      <ion-label position="floating">Name</ion-label>
+      <ion-input formControlName="name" type="text" required></ion-input>
     </ion-item>
-    <ion-item>
-      <ion-label>Run set up by</ion-label>
-      <ion-input type="text"></ion-input>
-      <ion-label>On</ion-label>
-      <ion-input type="text"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Maint. and log completed by</ion-label>
-      <ion-input type="text"></ion-input>
-    </ion-item>
-  </ion-item-group>
 
-  <ion-button id="save" expand="block">Save</ion-button>
+    <ion-item lines="full">
+      <ion-label position="floating">Email</ion-label>
+      <ion-input formControlName="email" type="email" required></ion-input>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-label position="floating">DOB</ion-label>
+      <ion-datetime (ionChange)="getDate($event)" formControlName="dob" [value]="defaultDate"></ion-datetime>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-label position="floating">Mobile</ion-label>
+      <ion-input formControlName="mobile" type="text" required></ion-input>
+    </ion-item>
+
+    <ion-row>
+      <ion-col>
+        <ion-button type="submit" color="danger" expand="block">Submit</ion-button>
+      </ion-col>
+    </ion-row>
+  </form> -->
+
   
 </ion-content>

@@ -7,6 +7,7 @@ import { ScannerPage } from './scanner.page';
 import { ExploreContainerComponentModule } from '../../explore-container/explore-container.module';
 
 import { ScannerPageRoutingModule } from './scanner-routing.module';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @NgModule({
   imports: [
@@ -15,8 +16,11 @@ import { ScannerPageRoutingModule } from './scanner-routing.module';
     FormsModule,
     ExploreContainerComponentModule,
     RouterModule.forChild([{ path: '', component: ScannerPage }]),
-    ScannerPageRoutingModule,
+    ScannerPageRoutingModule
   ],
-  declarations: [ScannerPage]
+  declarations: [ScannerPage],
+  providers:[
+    BarcodeScanner
+  ]
 })
 export class ScannerPageModule {}
