@@ -1,0 +1,120 @@
+[
+  {
+    "key": "reagents",
+    "type": "group",
+    "children": [{
+      "key": "intstd",
+      "type": "input",
+      "label": "INT STD Lot",
+      "required": false
+    },
+    {
+      "key": "iqc",
+      "type": "input",
+      "label": "IQC Lot",
+      "required": false
+    },
+    {
+      "key": "acn",
+      "type": "input",
+      "label": "ACN Lot",
+      "required": false
+    },
+    {
+      "key": "meqh",
+      "type": "input",
+      "label": "MEQH Lot",
+      "required": false
+    },
+    {
+      "key": "tea",
+      "type": "input",
+      "label": "TEA Lot",
+      "required": false
+    }
+  ]
+  },
+  {
+    "key": "equipment",
+    "type": "group",
+    "children": [{
+      "key": "p1",
+      "type": "input",
+      "label": "Pipette #1",
+      "required": false
+    },
+    {
+      "key": "p2",
+      "type": "input",
+      "label": "Pipette #2",
+      "required": false
+    },
+    {
+      "key": "p3",
+      "type": "input",
+      "label": "Pipette #3",
+      "required": false
+    },
+    {
+      "key": "p4",
+      "type": "input",
+      "label": "Pipette #4",
+      "required": false
+    },
+    {
+      "key": "p5",
+      "type": "input",
+      "label": "Pipette #5",
+      "required": false
+    }
+  ]
+  },
+  {
+    "key": "others",
+    "type": "group",
+    "children": [{
+      "key": "mobilePhaseA",
+      "type": "date",
+      "label": "Mobile Phase A",
+      "required": false
+    },
+    {
+      "key": "mobilePhaseB",
+      "type": "date",
+      "label": "Mobile Phase B",
+      "required": false
+    },
+    {
+      "key": "sealWashDate",
+      "type": "date",
+      "label": "Seal Wash Date",
+      "required": false
+    },
+    {
+      "key": "needleWashDate",
+      "type": "date",
+      "label": "Needle Wash Date",
+      "required": false
+    },
+    {
+      "key": "samplePrepBy",
+      "type": "input",
+      "label": "Sample preparation by",
+      "required": false
+    },
+    {
+      "key": "runSetupBy",
+      "type": "input",
+      "label": "Run set up by",
+      "required": false
+    },
+    {
+      "key": "maintLogBy",
+      "type": "input",
+      "label": "Maint. and log completed by",
+      "required": false
+    }
+  ]
+  }
+]
+

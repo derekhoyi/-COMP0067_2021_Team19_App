@@ -1,5 +1,10 @@
+import { JSDocTagName } from '@angular/compiler/src/output/output_ast';
 import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
+import { AlertController } from '@ionic/angular';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import FormJson from '../../../assets/test_form.json'
+import { Variable } from '@angular/compiler/src/render3/r3_ast';
 
 @Component({
   selector: 'app-run-test',
@@ -8,51 +13,72 @@ import { FormGroup, FormBuilder, Validators, FormArray } from "@angular/forms";
 })
 export class RunTestPage {
   
-  // declear form group
   testForm: FormGroup;
-  defaultDate = "1987-06-30";
-  equipment: FormArray;
-  // reagents: FormArray;
-  
-  constructor(public formBuilder: FormBuilder) {}
+  testFormJson = FormJson; 
+  scanCode: any;
 
-  ngOnInit() {
-    this.testForm = this.formBuilder.group({
-      batchNumber: [''],
-      dob: [''],
-      mobile: [''],
-      // equipment: this.formBuilder.array([''])
-      equipment: this.formBuilder.array([this.createEqpt()])
-      // reagents: this.formBuilder.array([this.createEqpt()])
-    })
-  }
-
-  // Reagents
-  // createReagent(): FormGroup {
-  //   return this.formBuilder.group({
-  //     pipette: ''
-  //   });
-  // }
-
-  // Equipment
-  createEqpt(): FormGroup {
-    return this.formBuilder.group({
-      pipette: ''
+  constructor(
+    private fb: FormBuilder, 
+    private alertCtrl: AlertController, 
+    private barcodeScanner: BarcodeScanner) { 
+    console.log(this.testFormJson);
+    this.testForm = this.fb.group({
+      testName: new FormControl('', Validators.required),
+      batchNumber: new FormControl('', Validators.required),
     });
+    this.createControl(this.testFormJson);
   }
-  addEqpt(): void {
-    this.equipment = this.testForm.get('equipment') as FormArray;
-    this.equipment.push(this.createEqpt());
-  }
-  
-  // addEqpt(): void {
-  //   this.equipment = this.testForm.get('equipment') as FormArray;
-  //   this.equipment.push(this.formBuilder.control(''));
-  // }
 
-  removeEqpt(index){
-    this.equipment.removeAt(index)
-  };
+  // Create form controls
+  createControl(controls){
+    for (let control of controls){
+      if (control.type == 'group'){
+        const newGroup = new FormGroup({});
+        control.children.map(child => {
+          const newControl = new FormControl(); 
+          
+          // set validators
+          if (child.required){ 
+            newControl.setValidators(Validators.required);
+          }
+          newGroup.addControl(child.key, newControl);
+        });
+        this.testForm.addControl(control.key, newGroup);
+
+      } 
+      // else if (control.type == 'array'){
+      //   const newArray = new FormArray([]);
+
+      //   const oneGroup = new FormGroup({});
+      //   control.children.map(child => {
+      //     oneGroup.addControl(child.key, new FormControl());
+      //   });
+      //   newArray.push(oneGroup);
+      //   this.myForm.addControl(control.key, newArray);
+      // }
+
+      // const  newFormControl = new FormControl(); 
+      
+      // if (control.required){
+      //   newFormControl.setValidators(Validators.required);
+      // }
+
+      // this.myForm.addControl(control.key, newFormControl);
+    }
+    console.log('My form: ', this.testForm);
+  }
+
+  // Submit form
+  async submitForm(){
+    const alert = await this.alertCtrl.create({
+      header: 'Your Form',
+      message: JSON.stringify(this.testForm.value),
+      buttons: ['OK']
+    });
+
+    await alert.present();
+    console.log(this.testForm.value);
+  }
 
   // Format date
   getDate(e) {
@@ -60,12 +86,28 @@ export class RunTestPage {
     this.testForm.get('dob').setValue(date, {
        onlyself: true
     })
- }
+  }
 
-  // Submit form
-  submitForm() {
-  console.log(this.testForm.value)
-  // console.log(this.testForm.value.equipment[0])
-}
+  // QR code scanner
+  scan() {
+    this.scanCode = null;
+    this.barcodeScanner.scan().then(barcodeData => {
+      console.log('Barcode data', barcodeData);
+      this.scanCode = barcodeData;
+    }).catch(err => {
+      console.log('Error', err);
+    });
+  }
 
+  scan1(key: string) {
+    // console.log(key);
+    // console.log(this.testForm.controls.reagents.value[key]);
+    const newNestedGroup = this.testForm.get('reagents') as FormGroup;
+    // console.log(this.newNestGroup);
+    newNestedGroup.controls[key].patchValue('dd');
+    // console.log(this.newNestGroup.controls.iqc.value);
+  }
+
+  ngOnInit() {
+  } 
 }

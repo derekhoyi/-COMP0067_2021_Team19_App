@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>form</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+<form [formGroup] = "myForm" (ngSubmit)="submitForm()">
+  <div *ngFor="let c of simpleForm">
+    {{ c | json}}
+    <div [ngSwitch]="c.type">
+      <div *ngSwitchCase="'group'" [formGroupName]="c.key">
+        <ion-item *ngFor="let child of c.children">
+          <ion-label position="stacked">{{ child.label }}</ion-label>
+          <ion-input [formControlName]="child.key"></ion-input>
+        </ion-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- <ion-item *ngFor="let c of simpleForm">
+    <ion-label position="stacked">
+      {{ c.label }}
+    </ion-label>
+    <div [ngSwitch]="c.type">
+      <ion-input *ngSwitchCase="'input'" [type]="text" [formControlName]="c.key"></ion-input>
+      <ion-toggle *ngSwitchCase="'boolean'" [formControlName]="c.key"></ion-toggle>
+      <ion-datetime *ngSwitchCase="'date'" [formControlName]="c.key"></ion-datetime>
+      <ion-textarea *ngSwitchCase="'text'" rows="3" [formControlName]="c.key"></ion-textarea>
+    </div>
+  </ion-item> -->
+  <ion-button type="submit" expand="block" [disabled]="!myForm.valid">Submit!</ion-button>
+</form>
+</ion-content>
