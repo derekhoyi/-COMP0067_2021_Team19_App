@@ -18,8 +18,11 @@
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <ion-item>
+    <ion-label>
+      Reagent ID: {{ scannedCodeText }}
+    </ion-label>
+  </ion-item>
 
-  <ion-button id="save" expand="block" (click)=scan()>Save</ion-button>
-
+  <ion-button expand="block" (click)=scan()>Scan Again</ion-button>
 </ion-content>

@@ -15,7 +15,7 @@ export class RunTestPage {
   
   testForm: FormGroup;
   testFormJson = FormJson; 
-  scanCode: any;
+  scannedCode: any;
 
   constructor(
     private fb: FormBuilder, 
@@ -89,22 +89,29 @@ export class RunTestPage {
   }
 
   // QR code scanner
-  scan() {
-    this.scanCode = null;
+  scan(key: string) {
+    this.scannedCode = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
-      this.scanCode = barcodeData;
+      this.scannedCode = barcodeData;
+
+      // Patch value to form
+      const newNestedGroup = this.testForm.get('reagents') as FormGroup;
+      newNestedGroup.controls[key].patchValue(JSON.parse(JSON.stringify(this.scannedCode.text)));
     }).catch(err => {
       console.log('Error', err);
     });
+
+    
   }
 
   scan1(key: string) {
     // console.log(key);
     // console.log(this.testForm.controls.reagents.value[key]);
+    var x = "123";
     const newNestedGroup = this.testForm.get('reagents') as FormGroup;
     // console.log(this.newNestGroup);
-    newNestedGroup.controls[key].patchValue('dd');
+    newNestedGroup.controls[key].patchValue(x);
     // console.log(this.newNestGroup.controls.iqc.value);
   }
 
