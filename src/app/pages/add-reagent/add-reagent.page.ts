@@ -22,21 +22,20 @@ export class AddReagentPage implements OnInit {
         Composition: this.fb.array([]),
       });
   };
-  today= Date()
+  myDate: String = new Date().toISOString();
   addComponent(){
     this.Composition.push(this.fb.control(''));
   };
 
   removeCurrentComponent(index){
-
      this.Composition.removeAt(index)
 
   };
 
-
   get Composition() {
     return this.reagentForm.get('Composition') as FormArray;
   };
+
 
   async onSubmit(){
     console.log(this.reagentForm.value)
