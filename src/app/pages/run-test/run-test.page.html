@@ -19,100 +19,160 @@
   </ion-header>
 
   <form [formGroup]="testForm" (ngSubmit)="submitForm()">
-    <ion-item>
-      <ion-label position="stacked">Test Name</ion-label>
-      <ion-select placeholder="Select test" formControlName="testName">
-        <ion-select-option value="f">PAA</ion-select-option>
-        <ion-select-option value="m">XXX</ion-select-option>
-      </ion-select>
-      <ion-button fill="clear" slot="end" class="ion-align-self-center">
-        <ion-icon name="cloud-download"></ion-icon>
-      </ion-button>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Batch Number</ion-label>
-      <ion-input formControlName="batchNumber" type="text" placeholder="" clear-input="true"></ion-input>
-    </ion-item>
-    
-    <div *ngFor="let c of testFormJson">
-      <!-- {{ c | json}} -->
-      <div [ngSwitch]="c.key">
-        <div *ngSwitchCase="'reagents'" [formGroupName]="c.key">
-          <ion-list-header lines="full">
-            <ion-label>Reagents</ion-label>
-            <!-- <ion-button fill="clear">
-              <ion-icon name="add-outline"></ion-icon>
-            </ion-button> -->
-          </ion-list-header>
-          <ion-item *ngFor="let child of c.children">
-            <ion-label position="stacked">{{ child.label }}</ion-label>
-            <ion-input [formControlName]="child.key"  clear-input="true"></ion-input>
-            <ion-button fill="clear" slot="end" class="ion-align-self-center" 
-              (click)=scan(child.key)>
-              <ion-icon name="qr-code"></ion-icon>
+    <ion-grid class="ion-no-padding">
+      <ion-row>
+        <ion-col size-lg="6" size="12">
+          <ion-item>
+            <ion-label position="stacked">Test Name</ion-label>
+            <ion-select placeholder="Select test" formControlName="assayName" (ionChange)="testChange()">
+              <div *ngFor="let i of testTypesJson">
+                <ion-select-option [value]="i.assayName">{{ i.assayName }}</ion-select-option>
+              </div>
+            </ion-select>
+            <ion-button fill="clear" slot="end" class="ion-align-self-center">
+              <ion-icon name="cloud-download"></ion-icon>
             </ion-button>
           </ion-item>
-        </div>
-        
-        <div *ngSwitchCase="'equipment'" [formGroupName]="c.key">
-          <ion-list-header lines="full">
-            <ion-label>Equipment</ion-label>
-            <!-- <ion-button fill="clear">
-              <ion-icon name="add-outline"></ion-icon>
-            </ion-button> -->
-          </ion-list-header>
-          <ion-item *ngFor="let child of c.children">
-            <ion-label position="stacked">{{ child.label }}</ion-label>
-            <ion-input [formControlName]="child.key" clear-input="true"></ion-input>
+        </ion-col>
+        <ion-col size-lg="6" size="12">
+          <ion-item>
+            <ion-label position="stacked">Batch Number</ion-label>
+            <ion-input formControlName="batchNumber" type="text" placeholder="" 
+            clear-input="true"></ion-input>
           </ion-item>
-        </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    
+    <!-- {{ testForm.value.assayName == "PAA" }} -->
+    <div *ngIf="testForm.value.assayName !== ''">
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <!-- Reagents -->
+          <ion-col size-lg="4" size="12">
+            <ion-list-header lines="full">
+              <ion-label>Reagents</ion-label>
+            </ion-list-header>
+            <div *ngFor="let c of testTypesJson">
+              <div *ngIf="c.assayName == testForm.value.assayName">
+                <div *ngFor="let d of c.metadata">
+                  <div [ngSwitch]="d.key">
+                    
+                    <!-- reagents records -->
+                    <div *ngSwitchCase="'reagents'">
+                      <div *ngFor="let item of testForm.get(d.key)['controls']; let i = index;" 
+                      [formArrayName]="d.key">
+                        <div [formGroupName]="i" style="width:100%">
+                          <div [ngSwitch]="d.children[i].type">
+                            <ion-item>
+                              <ion-label position="stacked">
+                                <div>{{ d.children[i].label }}</div>
+                                <div class="lotNumber">
+                                  Lot number: {{ testForm.value.reagents[i].lotNr | json }}</div>
+                              </ion-label>
+                              <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
+                              type="text" clear-input="true"></ion-input>
+                              <ion-button *ngSwitchCase="'reagent'"
+                              fill="clear" slot="end" class="ion-align-self-center" 
+                              (click)=scan(i)>
+                                <ion-icon name="qr-code"></ion-icon>
+                              </ion-button>
+                            </ion-item>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-        <div *ngSwitchCase="'others'" [formGroupName]="c.key">
-          <ion-list-header lines="full">
-            <ion-label>Others</ion-label>
-            <!-- <ion-button fill="clear">
-              <ion-icon name="add-outline"></ion-icon>
-            </ion-button> -->
-          </ion-list-header>
-          <ion-item *ngFor="let child of c.children">
-            <ion-label position="stacked">{{ child.label }}</ion-label>
-            <!-- <ion-input [formControlName]="child.key" ></ion-input> -->
-            <div [ngSwitch]="child.type" style="width: 100%;">
-              <ion-input *ngSwitchCase="'input'" [formControlName]="child.key" 
-                clear-input="true"></ion-input>
-              <ion-datetime *ngSwitchCase="'date'" [formControlName]="child.key" 
-                displayFormat="YYYY-MM-DD"></ion-datetime>
+                    <!-- other reagent data -->
+                    <div *ngSwitchCase="'reagentData'">
+                      <div *ngFor="let item of testForm.get(d.key)['controls']; let i = index;" 
+                      [formArrayName]="d.key">
+                        <div [formGroupName]="i">
+                          <div [ngSwitch]="d.children[i].type">
+                            <ion-item>
+                              <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
+                              <ion-input *ngSwitchCase="'text'" formControlName="value" 
+                              type="text" clear-input="true"></ion-input>
+                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
+                              displayFormat="YYYY-MM-DD"></ion-datetime>
+                            </ion-item>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> 
             </div>
-          </ion-item>
-        </div>
+          </ion-col>
 
-      </div>
-    
+          <!-- Equipment -->
+          <ion-col size-lg="4" size="12">
+            <ion-list>
+              <ion-list-header lines="full">
+                <ion-label>Equipment</ion-label>
+                <ion-button fill="clear" (click)="addEqpt()">
+                  <ion-icon name="add-outline"></ion-icon>
+                </ion-button>
+              </ion-list-header>
+              <div
+                formArrayName="equipment"
+                *ngFor="let item of testForm.get('equipment')['controls']; let i = index;"
+              >
+                <div [formGroupName]="i">
+                  <ion-item>
+                    <ion-label position="stacked">Equipment #{{i+1}}</ion-label>
+                    <ion-input formControlName="eqptNr" type="text" clear-input="true"></ion-input>
+                    <ion-button slot="end" fill="clear" class="ion-align-self-center" (click)=removeEqpt(i)>
+                      <ion-icon name="trash"></ion-icon>
+                    </ion-button>
+                  </ion-item>
+                </div>
+                <!-- Exposed item name: {{testForm.controls.equipment.controls[i].value}} -->
+              </div>
+            </ion-list>
+          </ion-col>
+
+          <!-- Other -->
+          <ion-col size-lg="4" size="12">
+            <ion-list-header lines="full">
+              <ion-label>Others</ion-label>
+            </ion-list-header>
+            <div *ngFor="let c of testTypesJson">
+              <div *ngIf="c.assayName == testForm.value.assayName">
+                <div *ngFor="let d of c.metadata">
+                  <div [ngSwitch]="d.key">
+                    <div *ngSwitchCase="'other'">
+                      <div *ngFor="let item of testForm.get(d.key)['controls']; let i = index;" 
+                      [formArrayName]="d.key">
+                        <div [formGroupName]="i">
+                          <div [ngSwitch]="d.children[i].type">
+                            <ion-item>
+                              <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
+                              <ion-input *ngSwitchCase="'text'" formControlName="value" 
+                              type="text" clear-input="true"></ion-input>
+                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
+                              displayFormat="YYYY-MM-DD"></ion-datetime>
+                            </ion-item>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> 
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-button type="submit" id="save" expand="block" [disabled]="!testForm.valid">Save</ion-button>
     </div>
-
-    result from scan: {{ scannedCode | json }}
-    
-    <ion-button type="submit" id="save" expand="block" [disabled]="!testForm.valid">Save</ion-button>
-
   </form>
 
-  
-  form value: <br>{{testForm.value | json}}
-  
-  <!-- <form [formGroup]="testForm" (ngSubmit)="submitForm()" novalidate>
-
-    <ion-item lines="full">
-      <ion-label position="floating">DOB</ion-label>
-      <ion-datetime (ionChange)="getDate($event)" formControlName="dob" [value]="defaultDate"></ion-datetime>
-    </ion-item>
-
-    <ion-row>
-      <ion-col>
-        <ion-button type="submit" color="danger" expand="block">Submit</ion-button>
-      </ion-col>
-    </ion-row>
-  </form> -->
-
-  
+  result from scan: <br>{{ scannedCode | json }} <br><br>
+  form value: <br>{{testForm.value | json}} <br><br>
+  test types: <br>{{testTypesJson | json}}
+ 
 </ion-content>
+
+<!-- (ionChange)="getDate($event,d.key,i)" -->

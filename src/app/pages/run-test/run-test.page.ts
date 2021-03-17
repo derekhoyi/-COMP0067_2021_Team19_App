@@ -3,8 +3,9 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
 import { AlertController } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import FormJson from '../../../assets/test_form.json'
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
+import { HttpClient } from '@angular/common/http';
+import testTypesJsonLocal from "../../../assets/test_form_new.json"
 
 @Component({
   selector: 'app-run-test',
@@ -14,58 +15,167 @@ import { Variable } from '@angular/compiler/src/render3/r3_ast';
 export class RunTestPage {
   
   testForm: FormGroup;
-  testFormJson = FormJson; 
   scannedCode: any;
+  baseURI : string  = "http://localhost:3000/";
+  testTypesJson: any;
+  equipment: FormArray;
 
   constructor(
     private fb: FormBuilder, 
     private alertCtrl: AlertController, 
-    private barcodeScanner: BarcodeScanner) { 
-    console.log(this.testFormJson);
+    private barcodeScanner: BarcodeScanner,
+    private http: HttpClient
+  ){}
+
+  ngOnInit() {
+    /* create static form control */
     this.testForm = this.fb.group({
-      testName: new FormControl('', Validators.required),
-      batchNumber: new FormControl('', Validators.required),
+      assayName: [''], //new FormControl('', Validators.required),
+      batchNumber: [''], //new FormControl('', Validators.required),
+      equipment: this.fb.array([this.createEqpt()])
     });
-    this.createControl(this.testFormJson);
+
+    /* retrieve testTypes JSON from server */
+    // let url = this.baseURI + "testTypes";
+		// this.http.get(url).subscribe(data => {
+		// 	this.testTypesJson = data;  
+		// 	console.log("JSON from server: ", data);
+		// }, error => console.log(error));
+
+    /* temp: retrieve from local*/
+    this.testTypesJson = testTypesJsonLocal;
+    console.log("JSON from local: ", testTypesJsonLocal);
+  } 
+
+  // Equipment: add/remove
+  createEqpt(): FormGroup {
+    return this.fb.group({
+      eqptNr: ''
+    });
   }
+  addEqpt(): void {
+    this.equipment = this.testForm.get('equipment') as FormArray;
+    this.equipment.push(this.createEqpt());
+  }
+  removeEqpt(index){
+    this.equipment.removeAt(index)
+  };
 
-  // Create form controls
+  // Reagents/Others: Create dynamic form controls
   createControl(controls){
+    
+    // select assay type
     for (let control of controls){
-      if (control.type == 'group'){
-        const newGroup = new FormGroup({});
-        control.children.map(child => {
-          const newControl = new FormControl(); 
+      if (control.assayName == this.testForm.value.assayName){
+        console.log("correct assay: " + this.testForm.value.assayName)
+
+        // select metadata
+        for (let meta of control.metadata){
+        
+          // 1. reagents
           
-          // set validators
-          if (child.required){ 
-            newControl.setValidators(Validators.required);
+          if (meta.key == "reagents"){
+            const reagentArray = new FormArray([]);
+
+            // select children
+            meta.children.map(child => {
+              // new form group
+              const oneGroup = new FormGroup({});
+              
+              // fields other than reagent ID
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("lotNr", new FormControl());
+
+              // reagent ID
+              const reagentIDControl = new FormControl();
+              if (child.required){ 
+                reagentIDControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("reagent", reagentIDControl);
+
+              // add to array
+              reagentArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("reagents", reagentArray);
+            });
           }
-          newGroup.addControl(child.key, newControl);
-        });
-        this.testForm.addControl(control.key, newGroup);
+          // 2. reagentData
+          else if (meta.key == "reagentData"){
+            const reagentDataArray = new FormArray([]);
 
-      } 
-      // else if (control.type == 'array'){
-      //   const newArray = new FormArray([]);
+            // select children
+            meta.children.map(child => {
+              // new form group
+              const oneGroup = new FormGroup({});
 
-      //   const oneGroup = new FormGroup({});
-      //   control.children.map(child => {
-      //     oneGroup.addControl(child.key, new FormControl());
-      //   });
-      //   newArray.push(oneGroup);
-      //   this.myForm.addControl(control.key, newArray);
-      // }
+              // fields other than "value"
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("type", new FormControl(child.type));
 
-      // const  newFormControl = new FormControl(); 
-      
-      // if (control.required){
-      //   newFormControl.setValidators(Validators.required);
-      // }
+              // value
+              const reagentIDControl = new FormControl();
+              if (child.required){ 
+                reagentIDControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("value", reagentIDControl);
 
-      // this.myForm.addControl(control.key, newFormControl);
+              // add to array
+              reagentDataArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("reagentData", reagentDataArray);
+            });
+          }
+          // 3. other
+          else if (meta.key == "other"){
+            const otherArray = new FormArray([]);
+
+            // select children
+            meta.children.map(child => {
+              // new form group
+              const oneGroup = new FormGroup({});
+
+              // fields other than "value"
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("type", new FormControl(child.type));
+
+              // value
+              const reagentIDControl = new FormControl();
+              if (child.required){ 
+                reagentIDControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("value", reagentIDControl);
+
+              // add to array
+              otherArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("other", otherArray);
+            });
+          }
+        }
+      }
     }
     console.log('My form: ', this.testForm);
+  }
+
+  // update form after selecting assay type
+  testChange(){
+    console.log('changed');
+
+    // reset form control
+    this.testForm = this.fb.group({
+      assayName: [this.testForm.value.assayName], //new FormControl('', Validators.required),
+      batchNumber: [this.testForm.value.batchNumber], //new FormControl('', Validators.required),
+      equipment: this.fb.array([this.createEqpt()])
+    });
+
+    // create new control
+    this.createControl(this.testTypesJson);
   }
 
   // Submit form
@@ -79,11 +189,14 @@ export class RunTestPage {
     await alert.present();
     console.log(this.testForm.value);
   }
-
+  
   // Format date
-  getDate(e) {
-    let date = new Date(e.target.value).toISOString().substring(0, 10);
-    this.testForm.get('dob').setValue(date, {
+  getDate(event,arrayName,key) {
+    let date = new Date(event.target.value).toISOString(); //substring(0, 10)
+    const oneFormArray = this.testForm.get(arrayName) as FormArray;
+    const oneRecord = oneFormArray.controls[key] as FormGroup;
+    console.log(oneRecord);
+    oneRecord.controls.value.setValue(date, {
        onlyself: true
     })
   }
@@ -96,25 +209,11 @@ export class RunTestPage {
       this.scannedCode = barcodeData;
 
       // Patch value to form
-      const newNestedGroup = this.testForm.get('reagents') as FormGroup;
-      newNestedGroup.controls[key].patchValue(JSON.parse(JSON.stringify(this.scannedCode.text)));
+      const newNestedArray = this.testForm.get('reagents') as FormArray;
+      const newNestedGroup = newNestedArray.controls[key];
+      newNestedGroup.controls['reagent'].patchValue(this.scannedCode.text);
     }).catch(err => {
       console.log('Error', err);
     });
-
-    
   }
-
-  scan1(key: string) {
-    // console.log(key);
-    // console.log(this.testForm.controls.reagents.value[key]);
-    var x = "123";
-    const newNestedGroup = this.testForm.get('reagents') as FormGroup;
-    // console.log(this.newNestGroup);
-    newNestedGroup.controls[key].patchValue(x);
-    // console.log(this.newNestGroup.controls.iqc.value);
-  }
-
-  ngOnInit() {
-  } 
 }

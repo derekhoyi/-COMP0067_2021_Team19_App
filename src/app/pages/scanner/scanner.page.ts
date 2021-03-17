@@ -16,7 +16,7 @@ export class ScannerPage {
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
       this.scannedCode = barcodeData;
-      this.scannedCodeText = JSON.parse(JSON.stringify(this.scannedCode.text));
+      this.scannedCodeText = this.scannedCode.text;
     }).catch(err => {
       console.log('Error', err);
     });
