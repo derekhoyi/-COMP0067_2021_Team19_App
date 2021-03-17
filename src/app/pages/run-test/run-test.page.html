@@ -81,7 +81,7 @@
             <div [ngSwitch]="child.type" style="width: 100%;">
               <ion-input *ngSwitchCase="'input'" [formControlName]="child.key" 
                 clear-input="true"></ion-input>
-              <ion-datetime *ngSwitchCase="'date'" [formControlName]="child.key" 
+              <ion-datetime *ngSwitchCase="'date'" [formControlName]="child.key" (ionChange) ="getOthersDate($event)"
                 displayFormat="YYYY-MM-DD"></ion-datetime>
             </div>
           </ion-item>

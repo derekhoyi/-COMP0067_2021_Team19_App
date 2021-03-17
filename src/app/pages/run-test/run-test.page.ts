@@ -81,9 +81,9 @@ export class RunTestPage {
   }
 
   // Format date
-  getDate(e) {
-    let date = new Date(e.target.value).toISOString().substring(0, 10);
-    this.testForm.get('dob').setValue(date, {
+  getOthersDate(e) {
+    let date = new Date(e.target.value).toISOString();
+    this.testForm.get(['others',e.target.getAttribute('ng-reflect-name')]).setValue(date, {
        onlyself: true
     })
   }
