@@ -2,7 +2,6 @@ import { Component, OnInit} from '@angular/core';
 import {Validators, FormBuilder, FormGroup, FormControl,FormArray } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 
-
 @Component({
   selector: 'app-add-reagent',
   templateUrl: 'add-reagent.page.html',
@@ -10,7 +9,10 @@ import { AlertController } from '@ionic/angular';
 })
 export class AddReagentPage implements OnInit {
   reagentForm: FormGroup;
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private alertCtrl: AlertController,
+   ) {}
   ngOnInit(){
     this.reagentForm = this.fb.group({
         ReagentName: [''],
@@ -21,21 +23,18 @@ export class AddReagentPage implements OnInit {
       });
   };
   myDate: String = new Date().toISOString();
-
   addComponent(){
     this.Composition.push(this.fb.control(''));
   };
 
   removeCurrentComponent(index){
-
      this.Composition.removeAt(index)
 
   };
 
   get Composition() {
     return this.reagentForm.get('Composition') as FormArray;
-  }
-
+  };
   getDate(e) {
     let date = new Date(e.target.value).toISOString();
     this.reagentForm.get(e.target.getAttribute('formControlName')).setValue(date, {
@@ -54,4 +53,5 @@ export class AddReagentPage implements OnInit {
 
     await alert.present();
     }
+  
 }
