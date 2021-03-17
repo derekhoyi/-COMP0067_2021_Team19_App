@@ -35,7 +35,12 @@ export class AddReagentPage implements OnInit {
   get Composition() {
     return this.reagentForm.get('Composition') as FormArray;
   };
-
+  getDate(e) {
+    let date = new Date(e.target.value).toISOString();
+    this.reagentForm.get(e.target.getAttribute('formControlName')).setValue(date, {
+       onlyself: true
+    })
+  }
 
   async onSubmit(){
     console.log(this.reagentForm.value)

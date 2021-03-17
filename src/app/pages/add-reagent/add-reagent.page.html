@@ -42,7 +42,7 @@
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Expected expiry date</ion-label>
-            <ion-datetime formControlName="DateExpire" class="form-control" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+            <ion-datetime formControlName="DateExpire" (ionChange) ="getDate($event)" class="form-control" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
           </ion-item>
         </ion-col>
       </ion-row>
