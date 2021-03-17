@@ -19,6 +19,7 @@ export class AddReagentPage implements OnInit {
         Composition: this.fb.array([]),
       });
   };
+  myDate: String = new Date().toISOString();
 
   addComponent(){
     this.Composition.push(this.fb.control(''));
