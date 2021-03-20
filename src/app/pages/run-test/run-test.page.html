@@ -23,21 +23,24 @@
       <ion-row>
         <ion-col size-lg="6" size="12">
           <ion-item>
-            <ion-label position="stacked">Test Name</ion-label>
-            <ion-select placeholder="Select test" formControlName="assayName" (ionChange)="testChange()">
+            <ion-label>Assay Name</ion-label>
+            <ion-select placeholder="Select assay" formControlName="assayName" 
+            class="ion-text-right" (ionChange)="testChange()">
               <div *ngFor="let i of testTypesJson">
                 <ion-select-option [value]="i.assayName">{{ i.assayName }}</ion-select-option>
               </div>
             </ion-select>
-            <ion-button fill="clear" slot="end" class="ion-align-self-center">
+            <ion-button fill="clear" slot="end" class="ion-align-self-center" 
+            (click)=ifGetLastTest() 
+            [disabled]="testForm.value.assayName == ''">
               <ion-icon name="cloud-download"></ion-icon>
             </ion-button>
           </ion-item>
         </ion-col>
         <ion-col size-lg="6" size="12">
           <ion-item>
-            <ion-label position="stacked">Batch Number</ion-label>
-            <ion-input formControlName="batchNumber" type="text" placeholder="" 
+            <ion-label >Batch Number</ion-label>
+            <ion-input class="ion-text-right" formControlName="batchNumber" type="text" placeholder="" 
             clear-input="true"></ion-input>
           </ion-item>
         </ion-col>
@@ -66,12 +69,14 @@
                           <div [ngSwitch]="d.children[i].type">
                             <ion-item>
                               <ion-label position="stacked">
-                                <div>{{ d.children[i].label }}</div>
-                                <div class="lotNumber">
-                                  Lot number: {{ testForm.value.reagents[i].lotNr | json }}</div>
+                                <div style="display: inline-block">{{ d.children[i].label }}</div>
+                                <div style="display: inline-block" class="lotNumber ion-text-right">
+                                  &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div>
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
-                              type="text" clear-input="true"></ion-input>
+                              type="text" clear-input="true"
+                              (change)="getReagentLotNumber($event,i)"
+                              (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
                               fill="clear" slot="end" class="ion-align-self-center" 
                               (click)=scan(i)>
@@ -93,7 +98,8 @@
                               <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="true"></ion-input>
-                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
+                              <ion-datetime *ngSwitchCase="'date'" formControlName="value"
+                              (ionChange)="getDate($event,d.key,i)"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                           </div>
@@ -124,7 +130,7 @@
                     <ion-label position="stacked">Equipment #{{i+1}}</ion-label>
                     <ion-input formControlName="eqptNr" type="text" clear-input="true"></ion-input>
                     <ion-button slot="end" fill="clear" class="ion-align-self-center" (click)=removeEqpt(i)>
-                      <ion-icon name="trash"></ion-icon>
+                      <ion-icon name="remove"></ion-icon>
                     </ion-button>
                   </ion-item>
                 </div>
@@ -152,6 +158,7 @@
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="true"></ion-input>
                               <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
+                              (ionChange)="getDate($event,d.key,i)"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                           </div>
@@ -171,7 +178,7 @@
 
   result from scan: <br>{{ scannedCode | json }} <br><br>
   form value: <br>{{testForm.value | json}} <br><br>
-  test types: <br>{{testTypesJson | json}}
+  <!-- test types: <br>{{testTypesJson | json}} -->
  
 </ion-content>
 
