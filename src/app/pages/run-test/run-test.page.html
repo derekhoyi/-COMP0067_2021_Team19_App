@@ -40,7 +40,7 @@
         <ion-col size-lg="6" size="12">
           <ion-item>
             <ion-label >Batch Number</ion-label>
-            <ion-input class="ion-text-right" formControlName="batchNumber" type="text" placeholder="" 
+            <ion-input class="ion-text-right" formControlName="batchNr" type="text" placeholder="" 
             clear-input="true"></ion-input>
           </ion-item>
         </ion-col>
@@ -75,7 +75,7 @@
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
                               type="text" clear-input="true"
-                              (change)="getReagentLotNumber($event,i)"
+                              (change)="getReagent($event,i)"
                               (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
                               fill="clear" slot="end" class="ion-align-self-center" 
@@ -99,7 +99,7 @@
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="true"></ion-input>
                               <ion-datetime *ngSwitchCase="'date'" formControlName="value"
-                              (ionChange)="getDate($event,d.key,i)"
+                              (ionFocus)="setUpDatePicker(d.key,i)" [pickerOptions]="customPickerOptions"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                           </div>
@@ -176,8 +176,8 @@
     </div>
   </form>
 
-  result from scan: <br>{{ scannedCode | json }} <br><br>
-  form value: <br>{{testForm.value | json}} <br><br>
+  <!-- result from scan: <br>{{ scannedCode | getReagentLotNumberjson }} <br><br> -->
+  <!-- form value: <br>{{testForm.value | json}} <br><br> -->
   <!-- test types: <br>{{testTypesJson | json}} -->
  
 </ion-content>
