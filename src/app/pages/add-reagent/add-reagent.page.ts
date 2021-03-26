@@ -17,7 +17,7 @@ export class AddReagentPage implements OnInit {
   username: string = "60593f60654a0e113c4a9858";
   baseURI: string = "http://localhost:3000/";
   httpOptions: any;
-
+  reagents: FormArray;
   constructor(
     private fb: FormBuilder,
     private alertCtrl: AlertController,
@@ -39,26 +39,33 @@ export class AddReagentPage implements OnInit {
     this.reagentForm = this.fb.group({
       reagentName: [''],
       lotNr:[''],
-      createdBy:[this.myDate],
-      dateCreated:[''],
+      createdBy:[''],
+      dateCreated:[this.myDate],
       expiryDate:[''],
-      Composition: this.fb.array([]),
+      reagents: this.fb.array([]),
     });
 
   }
   myDate: String = new Date().toISOString();
-  addComponent(){
-    this.Composition.push(this.fb.control(''));
-  };
+  /*addComponent(){
+    this.reagents.push(this.fb.control(''));
+  };*/
+    // Add/remove equipment
+  createComponent(): FormGroup {
+    return this.fb.group({
+    //reagent:[''],
+    lotNr: [''], });
+  }
+  addComponent(): void {
+    this.reagents = this.reagentForm.get('reagents') as FormArray;
+    this.reagents.push(this.createComponent());
+  }
 
   removeCurrentComponent(index){
-     this.Composition.removeAt(index)
+     this.reagents.removeAt(index)
 
   };
 
-  get Composition() {
-    return this.reagentForm.get('Composition') as FormArray;
-  };
   getDate(e) {
     let date = new Date(e.target.value).toISOString();
     this.reagentForm.get(e.target.getAttribute('formControlName')).setValue(date, {
@@ -117,9 +124,9 @@ export class AddReagentPage implements OnInit {
       this.scannedCode = barcodeData;
 
       // Patch value to form
-      const newNestedArray = this.reagentForm.get('Composition') as FormArray;
+      const newNestedArray = this.reagentForm.get('reagents') as FormArray;
       const newNestedGroup = newNestedArray.controls[key];
-      newNestedGroup.controls['Composition'].patchValue(this.scannedCode.text);
+      newNestedGroup.controls['reagents'].patchValue(this.scannedCode.text);
     }).catch(err => {
       console.log('Error', err);
     });
@@ -155,7 +162,7 @@ export class AddReagentPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Show reagent: remove');
-            this.reagentForm.get('Composition').get(key.toString()).patchValue('');
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
           }
         }, 
         {
@@ -171,13 +178,13 @@ export class AddReagentPage implements OnInit {
 
   getReagent(event, key) {
     console.log("reagent id changed", event.target.value, key);
-    console.log(this.reagentForm.get('Composition').get(key.toString()).value);
+    console.log(this.reagentForm.get('reagents').get(key.toString()).get('lotNr').value);
    
-    if (this.reagentForm.value.Composition[key] !== ""){
+    if (this.reagentForm.value.reagents[key].lotNr !== ""){
       const priReagentUrl = this.baseURI + "reagents";
-      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.Composition[key], this.httpOptions);
+      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].lotNr, this.httpOptions);
       const secReagentUrl = this.baseURI + "secondary-reagents";
-      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.Composition[key], this.httpOptions);
+      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.reagents[key].lotNr, this.httpOptions);
 
       forkJoin([priReagentReq, secReagenReq])
       .subscribe((data: any[]) => {
@@ -194,13 +201,13 @@ export class AddReagentPage implements OnInit {
           // primary reagent
           if ((data[0] !== null)){
             this.showReagent(data[0], key, 'Primary');
-            this.reagentForm.get('Composition').get(key.toString()).patchValue(data[0].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
           }
           
           //secondary reagent
           else {
             this.showReagent(data[1], key, 'Secondary');
-            this.reagentForm.get('Composition').get(key.toString()).patchValue(data[1].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[1].lotNr);
           }
         }
       }, error => {
