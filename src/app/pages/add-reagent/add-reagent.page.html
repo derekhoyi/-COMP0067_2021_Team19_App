@@ -63,7 +63,7 @@
               <div [formGroupName]="i">
                 <ion-item-sliding>
                   <ion-item>
-                    <ion-input type="text" formControlName="lotNr" (change)="getReagent($event,i)"></ion-input>
+                    <ion-input type="text" formControlName="reagent" (change)="getReagent($event,i)"></ion-input>
                     <ion-button (click)=scan(i)>
                       <ion-icon name="qr-code"></ion-icon>
                     </ion-button>
