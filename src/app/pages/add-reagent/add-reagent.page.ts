@@ -40,7 +40,7 @@ export class AddReagentPage implements OnInit {
       reagentName: [''],
       lotNr:[''],
       createdBy:[''],
-      dateCreated:[''],
+      dateCreated:[this.myDate],
       expiryDate:[''],
       Composition: this.fb.array([]),
     });
