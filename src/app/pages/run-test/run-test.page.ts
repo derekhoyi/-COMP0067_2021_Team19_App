@@ -1,10 +1,10 @@
-import { JSDocTagName } from '@angular/compiler/src/output/output_ast';
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
 import { AlertController } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import FormJson from '../../../assets/test_form.json'
-import { Variable } from '@angular/compiler/src/render3/r3_ast';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-run-test',
@@ -12,80 +12,173 @@ import { Variable } from '@angular/compiler/src/render3/r3_ast';
   styleUrls: ['run-test.page.scss']
 })
 export class RunTestPage {
-  
+
   testForm: FormGroup;
-  testFormJson = FormJson; 
   scannedCode: any;
+  baseURI: string = "https://goshdrive.azurewebsites.net/";
+  testTypesJson: any;
+  equipment: FormArray;
+  username: string = "60593f60654a0e113c4a9858";
+  httpOptions: any;
 
   constructor(
-    private fb: FormBuilder, 
-    private alertCtrl: AlertController, 
-    private barcodeScanner: BarcodeScanner) { 
-    console.log(this.testFormJson);
+    private fb: FormBuilder,
+    private alertCtrl: AlertController,
+    private barcodeScanner: BarcodeScanner,
+    private http: HttpClient
+  ) { }
+
+  ngOnInit() {
+    /* create static form control */
+    this.createStaticControl();
+
+    /* set authorization header */
+    this.httpOptions = {
+      headers: new HttpHeaders({
+          'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDU5M2Y2MDY1NGEwZTExM2M0YTk4NTgiLCJpYXQiOjE2MTY0NjE2NzUsImV4cCI6MTYxNzA2NjQ3NX0.FdC60ZOScRB9PexVD2xav_dsKvoQJOmP6fbw35sw_s4' //localStorage.getItem("token")
+      })
+    };
+
+    /* retrieve testTypes JSON from server */
+    let url = this.baseURI + "test-types";
+    this.http.get(url, this.httpOptions).subscribe(data => {
+      this.testTypesJson = data;
+      console.log("JSON from server: ", data);
+    }, error => console.log(error));
+  }
+
+  // Create static controls
+  createStaticControl() {
     this.testForm = this.fb.group({
-      testName: new FormControl('', Validators.required),
-      batchNumber: new FormControl('', Validators.required),
+      batchNr: [''], //new FormControl('', Validators.required),
+      // conductedBy: [this.username],
+      equipment: this.fb.array([this.createEqpt()]),
+      assayName: [''], //new FormControl('', Validators.required),
     });
-    this.createControl(this.testFormJson);
   }
 
-  // Create form controls
-  createControl(controls){
-    for (let control of controls){
-      if (control.type == 'group'){
-        const newGroup = new FormGroup({});
-        control.children.map(child => {
-          const newControl = new FormControl(); 
-          
-          // set validators
-          if (child.required){ 
-            newControl.setValidators(Validators.required);
+  // Add/remove equipment
+  createEqpt(): FormGroup {
+    return this.fb.group({ eqptNr: '' });
+  }
+  addEqpt(): void {
+    this.equipment = this.testForm.get('equipment') as FormArray;
+    this.equipment.push(this.createEqpt());
+  }
+  removeEqpt(index) {
+    this.equipment.removeAt(index)
+  };
+
+  // Create dynamic form controls
+  createDynamicControl(controls) {
+
+    // select assay type
+    for (let control of controls) {
+      if (control.assayName == this.testForm.value.assayName) {
+        console.log("Assay selected: " + this.testForm.value.assayName)
+
+        // select metadata
+        for (let meta of control.metadata) {
+
+          // 1. reagents
+          if (meta.key == "reagents") {
+            const reagentArray = new FormArray([]);
+
+            // select children
+            meta.children.map(child => {
+
+              // new form group
+              const oneGroup = new FormGroup({});
+
+              // fields other than reagent ID
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("lotNr", new FormControl(''));
+
+              // reagent ID
+              const fieldControl = new FormControl();
+              if (child.required) {
+                fieldControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("reagent", fieldControl);
+
+              // add to array
+              reagentArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("reagents", reagentArray);
+            });
           }
-          newGroup.addControl(child.key, newControl);
-        });
-        this.testForm.addControl(control.key, newGroup);
+          // 2. reagentData
+          else if (meta.key == "reagentData") {
+            const reagentDataArray = new FormArray([]);
 
-      } 
-      // else if (control.type == 'array'){
-      //   const newArray = new FormArray([]);
+            // select children
+            meta.children.map(child => {
+              // new form group
+              const oneGroup = new FormGroup({});
 
-      //   const oneGroup = new FormGroup({});
-      //   control.children.map(child => {
-      //     oneGroup.addControl(child.key, new FormControl());
-      //   });
-      //   newArray.push(oneGroup);
-      //   this.myForm.addControl(control.key, newArray);
-      // }
+              // fields other than "value"
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("type", new FormControl(child.type));
 
-      // const  newFormControl = new FormControl(); 
-      
-      // if (control.required){
-      //   newFormControl.setValidators(Validators.required);
-      // }
+              // value
+              const fieldControl = new FormControl();
+              if (child.required) {
+                fieldControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("value", fieldControl);
 
-      // this.myForm.addControl(control.key, newFormControl);
+              // add to array
+              reagentDataArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("reagentData", reagentDataArray);
+            });
+          }
+          // 3. other
+          else if (meta.key == "other") {
+            const otherArray = new FormArray([]);
+
+            // select children
+            meta.children.map(child => {
+
+              // new form group
+              const oneGroup = new FormGroup({});
+
+              // fields other than "value"
+              oneGroup.addControl("key", new FormControl(child.key));
+              oneGroup.addControl("label", new FormControl(child.label));
+              oneGroup.addControl("type", new FormControl(child.type));
+
+              // value
+              const fieldControl = new FormControl();
+              if (child.required) {
+                fieldControl.setValidators(Validators.required);
+              }
+              oneGroup.addControl("value", fieldControl);
+
+              // add to array
+              otherArray.push(oneGroup);
+
+              // add to form
+              this.testForm.addControl("other", otherArray);
+            });
+          }
+        }
+      }
     }
-    console.log('My form: ', this.testForm);
+    console.log('New form created: ', this.testForm);
   }
 
-  // Submit form
-  async submitForm(){
+  // confirm box
+  async confirmBox(msg: string) {
     const alert = await this.alertCtrl.create({
-      header: 'Your Form',
-      message: JSON.stringify(this.testForm.value),
+      header: msg,
       buttons: ['OK']
     });
-
     await alert.present();
-    console.log(this.testForm.value);
-  }
-
-  // Format date
-  getOthersDate(e) {
-    let date = new Date(e.target.value).toISOString();
-    this.testForm.get(['others',e.target.getAttribute('ng-reflect-name')]).setValue(date, {
-       onlyself: true
-    })
   }
 
   // QR code scanner
@@ -96,25 +189,321 @@ export class RunTestPage {
       this.scannedCode = barcodeData;
 
       // Patch value to form
-      const newNestedGroup = this.testForm.get('reagents') as FormGroup;
-      newNestedGroup.controls[key].patchValue(JSON.parse(JSON.stringify(this.scannedCode.text)));
+      const newNestedArray = this.testForm.get('reagents') as FormArray;
+      const newNestedGroup = newNestedArray.controls[key];
+      newNestedGroup.controls['reagent'].patchValue(this.scannedCode.text);
     }).catch(err => {
       console.log('Error', err);
     });
-
-    
   }
 
-  scan1(key: string) {
-    // console.log(key);
-    // console.log(this.testForm.controls.reagents.value[key]);
-    var x = "123";
-    const newNestedGroup = this.testForm.get('reagents') as FormGroup;
-    // console.log(this.newNestGroup);
-    newNestedGroup.controls[key].patchValue(x);
-    // console.log(this.newNestGroup.controls.iqc.value);
+  // update form after selecting assay type
+  testChange() {
+    // reset form control
+    const tempAssayName = this.testForm.value.assayName;
+    const tempBatchNumber = this.testForm.value.batchNr;
+    this.createStaticControl();
+    this.testForm.controls.assayName.patchValue(tempAssayName);
+    this.testForm.controls.batchNr.patchValue(tempBatchNumber);
+
+    // create dynamic control
+    this.createDynamicControl(this.testTypesJson);
+
+    // ask if past record data is needed
+    if (this.testForm.controls.assayName.value !== ""){
+      this.ifGetLastTest();
+    }
   }
 
-  ngOnInit() {
-  } 
+  // popup to ask if past record data is needed
+  async ifGetLastTest() {
+    const alert = await this.alertCtrl.create({
+      header: 'Copy from past record',
+      message: 'Do you want to copy data from the last test record?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Retrieve record: No');
+          }
+        }, {
+          text: 'Yes',
+          handler: () => {
+            console.log('Retrieve record: Yes');
+            this.getLastTest();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // retrieve last test record
+  getLastTest() {
+    let url = this.baseURI + "tests";
+    this.http.get(url, this.httpOptions)
+      .pipe(
+
+        // get records of the same assay type
+        map((data: any) => {
+          console.log("before filter: ", data);
+          return data.filter(post => {
+            return post.assayName == this.testForm.value.assayName; 
+          });
+        }),
+
+        // get the last record
+        map((data: any) => {
+          return data[data.length - 1];
+        })
+      )
+      .subscribe((data: any) => {
+        console.log('after filter', data);
+
+        // no past record
+        if (data == null) {
+          this.confirmBox('No past record');
+        }
+
+        // retrieved successfully
+        else {
+          // this.confirmBox('Last record retrieved');
+
+          // patch value: equipment
+          this.testForm.controls.equipment = this.fb.array([]);
+          let i: number;
+          for (i = 0; i < data.equipment.length; i++) {
+            this.addEqpt();
+            this.testForm.get('equipment').get(i.toString()).get('eqptNr')
+            .patchValue(data.equipment[i].eqptNr);
+          }
+
+          // patch value: reagent
+          let j: number;
+          for (j = 0; j < data.reagents.length; j++) {
+            this.testForm.get('reagents').get(j.toString()).get('reagent')
+            .patchValue(data.reagents[j].reagent);
+            this.testForm.get('reagents').get(j.toString()).get('lotNr')
+            .patchValue(data.reagents[j].lotNr);
+          }
+
+          // patch value: reagentData
+          let k: number;
+          for (k = 0; k < data.reagentData.length; k++) {
+            this.testForm.get('reagentData').get(k.toString()).get('value')
+            .patchValue(data.reagentData[k].value);
+          }
+
+          // patch value: other
+          let m: number;
+          for (m = 0; m < data.other.length; m++) {
+            this.testForm.get('other').get(m.toString()).get('value')
+            .patchValue(data.other[m].value);
+          }
+        }
+      }, error => {
+        console.log(error);
+        this.confirmBox('Cannot retrieve data');
+      });
+  }
+
+  // clear lotNr if reagent id is empty
+  clearLotNumberIfEmpty(event, key){
+    if(event.target.value == ''){
+      this.testForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
+    }
+  }
+
+  // retrieve reagent lot number and other information using ID
+  getReagent(event, key) {
+    console.log("reagent id changed", event.target.value, key);
+    this.testForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
+
+    if (this.testForm.value.reagents[key].reagent !== ""){
+      const priReagentUrl = this.baseURI + "reagents";
+      const priReagentReq = this.http.get(priReagentUrl+"/"+this.testForm.value.reagents[key].reagent, this.httpOptions);
+      const secReagentUrl = this.baseURI + "secondary-reagents";
+      const secReagenReq = this.http.get(secReagentUrl+"/"+this.testForm.value.reagents[key].reagent, this.httpOptions);
+
+      forkJoin([priReagentReq, secReagenReq])
+      .subscribe((data: any[]) => {
+        console.log("Reagent data from server: ", data);
+
+        // invalid id: pop up
+        if ((data[0] == null) && (data[1] == null)){
+          this.confirmBox('No record found');
+        }
+
+        // valid id: show information and patch value
+        else{
+
+          // primary reagent
+          if ((data[0] !== null)){
+            this.showReagent(data[0], key, 'Primary');
+            this.testForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
+          }
+          
+          //secondary reagent
+          else {
+            this.showReagent(data[1], key, 'Secondary');
+            this.testForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[1].lotNr);
+          }
+        }
+      }, error => {
+        console.log(error);
+        this.confirmBox('Cannot retrieve data');
+      });
+    }
+  }
+
+  async showReagent(info: any, key: string, type: string) {
+
+    // set header 
+    let headerText = '';
+    const expiryDateFormatted = new Date(info.expiryDate).getTime();
+    const dateNow = new Date().getTime();
+    if (expiryDateFormatted < dateNow){
+      headerText = "Reagent Expired!";
+    }
+    else {
+      headerText = "";
+    }
+
+    // set message
+    let messageText = 
+      'Reagent Type: '+type+'<br>'+
+      'Lot Number: '+info.lotNr+'<br>'+
+      'Expiry Date: '+info.expiryDate.substring(0,10)+'<br>'+
+      'Status: '+info.status;
+
+    const alert = await this.alertCtrl.create({
+      header: headerText,
+      subHeader: "ID: " + info._id,
+      message: messageText,
+      buttons: [
+        {
+          text: 'Remove',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Show reagent: remove');
+            this.testForm.get('reagents').get(key.toString()).get('reagent').patchValue('');
+          }
+        }, 
+        {
+          text: 'Add',
+          handler: () => {
+            console.log('Show reagent: ok');
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // Format date (to use: insert "(ionChange)="getDate($event,d.key,i)" into ion-datetime)
+  // getDate(event, arrayName, key) {
+  //   if (event.target.value !== ""){
+  //     let date = new Date(event.target.value).toISOString(); //substring(0, 10)
+  //     const oneFormArray = this.testForm.get(arrayName) as FormArray;
+  //     const oneRecord = oneFormArray.controls[key] as FormGroup;
+  //     oneRecord.controls.value.setValue(date, {
+  //       onlyself: true
+  //     })
+  //   }
+  // }
+
+  // add clear button to date picker
+  dateArrayName: string;
+  dateKey: string;
+  setUpDatePicker(arrayName, key) {
+    this.dateArrayName = arrayName;
+    this.dateKey = key;
+    // console.log(this.dateArrayName, this.dateKey);
+  }
+  customPickerOptions = {
+    buttons: [{
+      text: 'Cancel',
+      role:'cancel',
+      handler: () => {}
+    },{
+      text: 'Clear',
+      handler: () => {
+        this.testForm.get(this.dateArrayName).get(this.dateKey.toString()).get('value')
+        .patchValue(null);
+      }
+    }, {
+      text: 'Save',
+      handler: (data) => {
+        // console.log('Data', data);      
+        const dateNow = new Date();
+        let year: string = data.year.text;
+        let month: string = data.month.value < 10 ? '0' + data.month.value.toString(): data.month.value.toString();
+        let day: string = data.day.text;
+        let rest: string = dateNow.toISOString().substring(11,); // set hh:mm:ss:mmmm
+        console.log(year + '-' + month + '-' + day +'T' + rest);
+        this.testForm.get(this.dateArrayName).get(this.dateKey.toString()).get('value')
+        .patchValue(year + '-' + month + '-' + day +'T' + rest);
+      }
+    }]
+  }
+   
+  // Submit form
+  async submitForm() {
+    const alert = await this.alertCtrl.create({
+      header: 'Save',
+      message: 'Do you want to save this record?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Save: No');
+          }
+        }, {
+          text: 'Yes',
+          handler: () => {
+            console.log('Save Yes');
+            console.log("submitted value", this.testForm.value);
+            let reqArray = [];
+
+            // request to save test            
+            const submitUrl = this.baseURI + "tests";
+            const submitReq = this.http.post(submitUrl, this.testForm.value, this.httpOptions);
+            reqArray.push(submitReq);
+
+            // requests to update reagent (only needed for primary reagent)
+            const httpOptionsNew = this.httpOptions;
+            httpOptionsNew.params = new HttpParams().set("action", "firstTest");
+            for (let i in this.testForm.value.reagents){
+              const reagentID = this.testForm.value.reagents[i].reagent
+              const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
+              const priReagentUpdateReq = this.http.put(priReagentUpdateUrl, {}, httpOptionsNew);
+              reqArray.push(priReagentUpdateReq);
+            };
+
+            // post to database
+            forkJoin(reqArray)
+              .subscribe((data: any[]) => {
+                console.log("submission result:", data);
+
+                // reset form control
+                this.createStaticControl();
+
+                // prompt confirmation box
+                this.confirmBox('Record saved!');
+              }, error => {
+                this.confirmBox(error.message);
+                console.log(error)
+              });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 }
+

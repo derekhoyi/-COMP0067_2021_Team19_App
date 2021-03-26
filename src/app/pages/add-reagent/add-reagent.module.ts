@@ -7,6 +7,7 @@ import { ExploreContainerComponentModule } from '../../explore-container/explore
 
 import { AddReagentPageRoutingModule } from './add-reagent-routing.module';
 import { FormBuilder, FormControl, ReactiveFormsModule, FormArray} from '@angular/forms';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @NgModule({
   imports: [
@@ -18,6 +19,9 @@ import { FormBuilder, FormControl, ReactiveFormsModule, FormArray} from '@angula
 
     ReactiveFormsModule
   ],
-  declarations: [AddReagentPage]
+  declarations: [AddReagentPage],
+  providers:[
+    BarcodeScanner
+  ]
 })
 export class AddReagentPageModule {}
