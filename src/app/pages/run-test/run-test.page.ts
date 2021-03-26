@@ -15,7 +15,7 @@ export class RunTestPage {
 
   testForm: FormGroup;
   scannedCode: any;
-  baseURI: string = "http://localhost:3000/";
+  baseURI: string = "https://goshdrive.azurewebsites.net/";
   testTypesJson: any;
   equipment: FormArray;
   username: string = "60593f60654a0e113c4a9858";
