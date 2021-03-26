@@ -39,7 +39,7 @@ export class AddReagentPage implements OnInit {
     this.reagentForm = this.fb.group({
       reagentName: [''],
       lotNr:[''],
-      createdBy:[''],
+      createdBy:[this.myDate],
       dateCreated:[''],
       expiryDate:[''],
       Composition: this.fb.array([]),
