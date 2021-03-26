@@ -24,38 +24,46 @@
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Reagent Name</ion-label>
-            <ion-input class="form-control" formControlName="ReagentName" type="text"></ion-input>
+            <ion-input class="ion-text-right" formControlName="reagentName" type="text"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col size-md="6" size="12">
+          <ion-item>
+            <ion-label>Lot Number</ion-label>
+            <ion-input class="ion-text-right" formControlName="lotNr" type="text"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Made by</ion-label>
-            <ion-input formControlName="ProducerName" type="text" class="form-control"></ion-input>
+            <ion-input formControlName="createdBy" type="text" class="ion-text-right"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Date made</ion-label>
-            <ion-datetime formControlName="DateMade" class="form-control" [(ngModel)]= "myDate" displayFormat="YYYY-MM-DD" placeholder ="Select Date" disabled ="True"></ion-datetime>
+            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" disabled="True"></ion-datetime>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Expected expiry date</ion-label>
-            <ion-datetime formControlName="DateExpire" (ionChange) ="getDate($event)" class="form-control" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+            <ion-datetime formControlName="expiryDate" class="form-control" (ionChange)="getDate($event)" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
           </ion-item>
         </ion-col>
       </ion-row>
+      <ion-item>
+        <ion-label>Compoistion</ion-label>
+        <ion-button type="button" class="ion-float-right" (click)="addComponent()">Add Component</ion-button>
+      </ion-item>
       <ion-row>
-        <ion-col size="12">
-          <ion-list class="form-group">
-            <ion-label>Compoistion</ion-label>
-            <ion-button type="button" class="btn btn-secondary btn-sm m-2" (click)="addComponent()">Add Component</ion-button>
+        <ion-col size-md="6" size="12">
+          <ion-list lines="full" class="form-group">
             <ion-item formArrayName="Composition" *ngFor="let component of Composition.controls; let i=index">
-              <ion-item-sliding (ionDrag)='removeCurrentComponent(i)'>
+              <ion-item-sliding>
                 <ion-item>
-                  <ion-input type="text" [formControlName]="i"></ion-input>
-                  <ion-button>
+                  <ion-input type="text" [formControlName]="i" (change)="getReagent($event,i)"></ion-input>
+                  <ion-button (click)=scan(i)>
                     <ion-icon name="qr-code"></ion-icon>
                   </ion-button>
                 </ion-item>
