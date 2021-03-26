@@ -201,13 +201,13 @@ export class AddReagentPage implements OnInit {
           // primary reagent
           if ((data[0] !== null)){
             this.showReagent(data[0], key, 'Primary');
-            this.reagentForm.get('reagents').get(key.toString()).get('reagent').patchValue(data[0].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
           }
           
           //secondary reagent
           else {
             this.showReagent(data[1], key, 'Secondary');
-            this.reagentForm.get('reagents').get(key.toString()).get('reagent').patchValue(data[1].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
           }
         }
       }, error => {
