@@ -192,6 +192,9 @@ export class RunTestPage {
       const newNestedArray = this.testForm.get('reagents') as FormArray;
       const newNestedGroup = newNestedArray.controls[key];
       newNestedGroup.controls['reagent'].patchValue(this.scannedCode.text);
+      
+      // retrieve reagent information
+      this.getReagent(key);
     }).catch(err => {
       console.log('Error', err);
     });
@@ -317,8 +320,8 @@ export class RunTestPage {
   }
 
   // retrieve reagent lot number and other information using ID
-  getReagent(event, key) {
-    console.log("reagent id changed", event.target.value, key);
+  getReagent(key) {
+    console.log("reagent id changed", key);
     this.testForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
 
     if (this.testForm.value.reagents[key].reagent !== ""){

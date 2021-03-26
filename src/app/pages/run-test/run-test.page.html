@@ -75,7 +75,7 @@
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
                               type="text" clear-input="true"
-                              (change)="getReagent($event,i)"
+                              (change)="getReagent(i)"
                               (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
                               fill="clear" slot="end" class="ion-align-self-center" 
