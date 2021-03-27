@@ -53,7 +53,7 @@ export class AddReagentPage implements OnInit {
     // Add/remove equipment
   createComponent(): FormGroup {
     return this.fb.group({
-    //reagent:[''],
+    reagent:[''],
     lotNr: [''], });
   }
   addComponent(): void {
@@ -162,7 +162,7 @@ export class AddReagentPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Show reagent: remove');
-            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
+            this.reagentForm.get('reagents').get(key.toString()).get('reagent').patchValue('');
           }
         }, 
         {
@@ -178,13 +178,13 @@ export class AddReagentPage implements OnInit {
 
   getReagent(event, key) {
     console.log("reagent id changed", event.target.value, key);
-    console.log(this.reagentForm.get('reagents').get(key.toString()).get('lotNr').value);
+    console.log(this.reagentForm.get('reagents').get(key.toString()).get('reagent').value);
    
-    if (this.reagentForm.value.reagents[key].lotNr !== ""){
+    if (this.reagentForm.value.reagents[key].reagent !== ""){
       const priReagentUrl = this.baseURI + "reagents";
-      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].lotNr, this.httpOptions);
+      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent, this.httpOptions);
       const secReagentUrl = this.baseURI + "secondary-reagents";
-      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.reagents[key].lotNr, this.httpOptions);
+      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent, this.httpOptions);
 
       forkJoin([priReagentReq, secReagenReq])
       .subscribe((data: any[]) => {
@@ -207,7 +207,7 @@ export class AddReagentPage implements OnInit {
           //secondary reagent
           else {
             this.showReagent(data[1], key, 'Secondary');
-            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[1].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
           }
         }
       }, error => {
