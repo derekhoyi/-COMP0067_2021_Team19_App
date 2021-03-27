@@ -5,6 +5,8 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from './../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-run-test',
@@ -15,33 +17,25 @@ export class RunTestPage {
 
   testForm: FormGroup;
   scannedCode: any;
-  baseURI: string = "https://goshdrive.azurewebsites.net/";
+  baseURI: string = environment.url;
   testTypesJson: any;
   equipment: FormArray;
-  username: string = "60593f60654a0e113c4a9858";
-  httpOptions: any;
 
   constructor(
     private fb: FormBuilder,
     private alertCtrl: AlertController,
     private barcodeScanner: BarcodeScanner,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService, 
   ) { }
 
   ngOnInit() {
     /* create static form control */
     this.createStaticControl();
 
-    /* set authorization header */
-    this.httpOptions = {
-      headers: new HttpHeaders({
-          'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDU5M2Y2MDY1NGEwZTExM2M0YTk4NTgiLCJpYXQiOjE2MTY0NjE2NzUsImV4cCI6MTYxNzA2NjQ3NX0.FdC60ZOScRB9PexVD2xav_dsKvoQJOmP6fbw35sw_s4' //localStorage.getItem("token")
-      })
-    };
-
     /* retrieve testTypes JSON from server */
     let url = this.baseURI + "test-types";
-    this.http.get(url, this.httpOptions).subscribe(data => {
+    this.http.get(url).subscribe(data => {
       this.testTypesJson = data;
       console.log("JSON from server: ", data);
     }, error => console.log(error));
@@ -50,10 +44,9 @@ export class RunTestPage {
   // Create static controls
   createStaticControl() {
     this.testForm = this.fb.group({
-      batchNr: [''], //new FormControl('', Validators.required),
-      // conductedBy: [this.username],
+      batchNr: new FormControl('', Validators.required),
       equipment: this.fb.array([this.createEqpt()]),
-      assayName: [''], //new FormControl('', Validators.required),
+      assayName: new FormControl('', Validators.required),
     });
   }
 
@@ -182,7 +175,7 @@ export class RunTestPage {
   }
 
   // QR code scanner
-  scan(key: string) {
+  scan(key: number) {
     this.scannedCode = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
@@ -190,7 +183,7 @@ export class RunTestPage {
 
       // Patch value to form
       const newNestedArray = this.testForm.get('reagents') as FormArray;
-      const newNestedGroup = newNestedArray.controls[key];
+      const newNestedGroup = newNestedArray.controls[key.toString()];
       newNestedGroup.controls['reagent'].patchValue(this.scannedCode.text);
       
       // retrieve reagent information
@@ -246,7 +239,7 @@ export class RunTestPage {
   // retrieve last test record
   getLastTest() {
     let url = this.baseURI + "tests";
-    this.http.get(url, this.httpOptions)
+    this.http.get(url)
       .pipe(
 
         // get records of the same assay type
@@ -326,9 +319,9 @@ export class RunTestPage {
 
     if (this.testForm.value.reagents[key].reagent !== ""){
       const priReagentUrl = this.baseURI + "reagents";
-      const priReagentReq = this.http.get(priReagentUrl+"/"+this.testForm.value.reagents[key].reagent, this.httpOptions);
+      const priReagentReq = this.http.get(priReagentUrl+"/"+this.testForm.value.reagents[key].reagent);
       const secReagentUrl = this.baseURI + "secondary-reagents";
-      const secReagenReq = this.http.get(secReagentUrl+"/"+this.testForm.value.reagents[key].reagent, this.httpOptions);
+      const secReagenReq = this.http.get(secReagentUrl+"/"+this.testForm.value.reagents[key].reagent);
 
       forkJoin([priReagentReq, secReagenReq])
       .subscribe((data: any[]) => {
@@ -475,16 +468,17 @@ export class RunTestPage {
 
             // request to save test            
             const submitUrl = this.baseURI + "tests";
-            const submitReq = this.http.post(submitUrl, this.testForm.value, this.httpOptions);
+            const submitReq = this.http.post(submitUrl, this.testForm.value);
             reqArray.push(submitReq);
 
             // requests to update reagent (only needed for primary reagent)
-            const httpOptionsNew = this.httpOptions;
-            httpOptionsNew.params = new HttpParams().set("action", "firstTest");
             for (let i in this.testForm.value.reagents){
               const reagentID = this.testForm.value.reagents[i].reagent
               const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
-              const priReagentUpdateReq = this.http.put(priReagentUpdateUrl, {}, httpOptionsNew);
+              const priReagentUpdateReq = this.http.put(
+                priReagentUpdateUrl, 
+                {}, 
+                {params: new HttpParams().set("action", "firstTest")});
               reqArray.push(priReagentUpdateReq);
             };
 
@@ -507,6 +501,11 @@ export class RunTestPage {
       ]
     });
     await alert.present();
+  }
+
+  // log out
+  logout() {
+    this.authService.logout();
   }
 }
 

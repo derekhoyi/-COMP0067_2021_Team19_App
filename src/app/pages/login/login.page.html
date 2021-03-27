@@ -6,15 +6,22 @@
   <div id="login">
     <h1><b>GOSH DRIVE</b></h1>
     <p>Laboratory Assay Reagent Audits<p>
-    <ion-item>
-      <ion-label position="floating">User ID</ion-label>
-      <ion-input></ion-input>
-    </ion-item>
-    <ion-item> 
-      <ion-label position="floating">Password</ion-label>
-      <ion-input type="password"></ion-input>
-    </ion-item>
-    <ion-button expand="block" href="/tabs/">Log in</ion-button>
+
+    <form [formGroup]="credentialsForm" (ngSubmit)="onSubmit()">
+ 
+      <ion-item>
+        <ion-label position="floating">User ID</ion-label>
+        <ion-input type="text" formControlName="username"></ion-input>
+      </ion-item>
+   
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" formControlName="password"></ion-input>
+      </ion-item>
+   
+      <ion-button expand="block" type="submit" [disabled]="!credentialsForm.valid">Log In</ion-button>
+       
+    </form>
   </div>
   
 </ion-content>

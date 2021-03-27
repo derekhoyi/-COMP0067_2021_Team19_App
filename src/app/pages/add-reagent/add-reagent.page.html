@@ -4,7 +4,7 @@
       Make New Reagent
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" href="/login/">
+      <ion-button fill="clear" (click)=logout()>
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -42,7 +42,7 @@
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Date made</ion-label>
-            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" disabled="True"></ion-datetime>
+            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" disabled="true"></ion-datetime>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">

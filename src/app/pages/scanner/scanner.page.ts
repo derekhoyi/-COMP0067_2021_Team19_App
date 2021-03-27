@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { AuthService } from './../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-scanner',
@@ -9,8 +11,13 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 export class ScannerPage {
   scannedCode: any;
   scannedCodeText: string;
+  baseURI: string = environment.url;
 
-  constructor(private barcodeScanner: BarcodeScanner) {}
+  constructor(
+    private barcodeScanner: BarcodeScanner,
+    private authService: AuthService, 
+  ) {}
+
   scan() {
     this.scannedCode = null;
     this.barcodeScanner.scan().then(barcodeData => {
@@ -24,6 +31,11 @@ export class ScannerPage {
 
   ngOnInit() {
     this.scan();
-  } 
+  }
+  
+  // log out
+  logout() {
+    this.authService.logout();
+  }
 }
 

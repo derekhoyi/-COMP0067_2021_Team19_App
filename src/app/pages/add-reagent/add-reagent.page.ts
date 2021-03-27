@@ -4,7 +4,8 @@ import { AlertController } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
-
+import { AuthService } from './../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-add-reagent',
@@ -14,8 +15,7 @@ import { Observable, forkJoin } from 'rxjs';
 export class AddReagentPage implements OnInit {
   reagentForm: FormGroup;
   scannedCode: any;
-  username: string = "60593f60654a0e113c4a9858";
-  baseURI: string = "http://localhost:3000/";
+  baseURI: string = environment.url;
   httpOptions: any;
   reagents: FormArray;
   constructor(
@@ -23,16 +23,10 @@ export class AddReagentPage implements OnInit {
     private alertCtrl: AlertController,
     private barcodeScanner: BarcodeScanner,
     private http: HttpClient,
-
+    private authService: AuthService, 
    ) {}
   ngOnInit(){
     this.createStaticControl()
-    this.httpOptions = {
-      headers: new HttpHeaders({
-          'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDU5M2Y2MDY1NGEwZTExM2M0YTk4NTgiLCJpYXQiOjE2MTY0NjE2NzUsImV4cCI6MTYxNzA2NjQ3NX0.FdC60ZOScRB9PexVD2xav_dsKvoQJOmP6fbw35sw_s4' //localStorage.getItem("token")
-      })
-    };
-
   };
 
   createStaticControl(){
@@ -94,7 +88,7 @@ export class AddReagentPage implements OnInit {
 
             // request to save test            
             const submitUrl = this.baseURI + "secondary-reagents";
-            const submitReq = this.http.post(submitUrl, this.reagentForm.value, this.httpOptions);
+            const submitReq = this.http.post(submitUrl, this.reagentForm.value);
             console.log(this.reagentForm.value)
             // post to database
             submitReq
@@ -117,7 +111,7 @@ export class AddReagentPage implements OnInit {
     await alert.present();
   }
 
-  scan(key: string) {
+  scan(key: number) {
     this.scannedCode = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
@@ -125,7 +119,7 @@ export class AddReagentPage implements OnInit {
 
       // Patch value to form
       const newNestedArray = this.reagentForm.get('reagents') as FormArray;
-      const newNestedGroup = newNestedArray.controls[key];
+      const newNestedGroup = newNestedArray.controls[key.toString()];
       newNestedGroup.controls['reagents'].patchValue(this.scannedCode.text);
     }).catch(err => {
       console.log('Error', err);
@@ -182,9 +176,9 @@ export class AddReagentPage implements OnInit {
    
     if (this.reagentForm.value.reagents[key].reagent !== ""){
       const priReagentUrl = this.baseURI + "reagents";
-      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent, this.httpOptions);
+      const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent);
       const secReagentUrl = this.baseURI + "secondary-reagents";
-      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent, this.httpOptions);
+      const secReagenReq = this.http.get(secReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent);
 
       forkJoin([priReagentReq, secReagenReq])
       .subscribe((data: any[]) => {
@@ -225,4 +219,8 @@ export class AddReagentPage implements OnInit {
     await alert.present();
   }
 
+  // log out
+  logout() {
+    this.authService.logout();
+  }
 }

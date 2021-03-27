@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  url: 'https://goshdrive.azurewebsites.net/'  //"https://goshdrive.azurewebsites.net/" 'http://localhost:3000/'
 };
 
 /*

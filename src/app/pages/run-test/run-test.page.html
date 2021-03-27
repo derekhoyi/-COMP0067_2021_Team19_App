@@ -4,7 +4,7 @@
       Run New Test
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" href="/login/">
+      <ion-button fill="clear" (click)=logout()>
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -41,7 +41,7 @@
           <ion-item>
             <ion-label >Batch Number</ion-label>
             <ion-input class="ion-text-right" formControlName="batchNr" type="text" placeholder="" 
-            clear-input="true"></ion-input>
+            clear-input="false"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -74,7 +74,7 @@
                                   &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div>
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
-                              type="text" clear-input="true"
+                              type="text" clear-input="false"
                               (change)="getReagent(i)"
                               (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
@@ -97,7 +97,7 @@
                             <ion-item>
                               <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
-                              type="text" clear-input="true"></ion-input>
+                              type="text" clear-input="false"></ion-input>
                               <ion-datetime *ngSwitchCase="'date'" formControlName="value"
                               (ionFocus)="setUpDatePicker(d.key,i)" [pickerOptions]="customPickerOptions"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
@@ -128,7 +128,7 @@
                 <div [formGroupName]="i">
                   <ion-item>
                     <ion-label position="stacked">Equipment #{{i+1}}</ion-label>
-                    <ion-input formControlName="eqptNr" type="text" clear-input="true"></ion-input>
+                    <ion-input formControlName="eqptNr" type="text" clear-input="false"></ion-input>
                     <ion-button slot="end" fill="clear" class="ion-align-self-center" (click)=removeEqpt(i)>
                       <ion-icon name="remove"></ion-icon>
                     </ion-button>
@@ -158,7 +158,6 @@
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="true"></ion-input>
                               <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
-                              (ionChange)="getDate($event,d.key,i)"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                           </div>
