@@ -361,11 +361,11 @@ export class RunTestPage {
     const expiryDateFormatted = new Date(info.expiryDate).getTime();
     const dateNow = new Date().getTime();
     if (expiryDateFormatted < dateNow){
-      headerText = "Reagent Expired!";
-    }
-    else {
-      headerText = "";
-    }
+      headerText = headerText.concat("Reagent expired! ");
+    };
+    if (info.status == "DISPOSED"){
+      headerText = headerText.concat("Reagent is marked for disposal!");
+    };
 
     // set message
     let messageText = 
