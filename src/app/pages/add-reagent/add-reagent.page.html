@@ -35,12 +35,6 @@
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
-            <ion-label>Made by</ion-label>
-            <ion-input formControlName="createdBy" type="text" class="ion-text-right"></ion-input>
-          </ion-item>
-        </ion-col>
-        <ion-col size-md="6" size="12">
-          <ion-item>
             <ion-label>Date made</ion-label>
             <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" disabled="true"></ion-datetime>
           </ion-item>
@@ -48,7 +42,7 @@
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Expected expiry date</ion-label>
-            <ion-datetime formControlName="expiryDate" class="form-control" (ionChange)="getDate($event)" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+            <ion-datetime max="2100-10-31" formControlName="expiryDate" class="form-control" (ionChange)="getDate($event)" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
           </ion-item>
         </ion-col>
       </ion-row>
