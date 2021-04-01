@@ -30,6 +30,9 @@ export class ScannerPage {
       console.log('Barcode data', barcodeData);
       this.scannedCode = barcodeData;
       this.scannedCodeText = this.scannedCode.text;
+      this.getReagent(this.scannedCodeText)
+      //this.confirmBox(this.scannedCodeText);
+      //return this.scannedCodeText;
     }).catch(err => {
       console.log('Error', err);
     });
@@ -67,10 +70,11 @@ export class ScannerPage {
         this.confirmBox('Cannot retrieve data');
       });
   }
-  async showReagent(info: any, type: string) {
+  async showReagent(info: any, cat: string) {
 
     // set header 
     let headerText = '';
+    let type = '';
     const expiryDateFormatted = new Date(info.expiryDate).getTime();
     const dateNow = new Date().getTime();
     if (expiryDateFormatted < dateNow){
@@ -79,10 +83,14 @@ export class ScannerPage {
     else {
       headerText = "";
     }
-
+    if (cat == 'Primary'){
+      type = 'reagents';
+    } else{
+      type = 'secondary-reagents';
+    }
     // set message
     let messageText = 
-      'Reagent Type: '+type+'<br>'+
+      'Reagent Type: '+cat+'<br>'+
       'Lot Number: '+info.lotNr+'<br>'+
       'Expiry Date: '+info.expiryDate.substring(0,10)+'<br>'+
       'Status: '+info.status;
@@ -106,19 +114,15 @@ export class ScannerPage {
           text: 'back',
           handler: () => {
             console.log('Show reagent: ok');
+            this.scan()
           }
         }
       ]
     });
     await alert.present();
   }
-  initiate(){
-    const id = this.scan();
-    this.getReagent(id)
-  }
   ngOnInit() {
-    const id = this.scan();
-    this.getReagent(id);
+    this.scan()
   }
   
   // log out

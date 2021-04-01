@@ -115,11 +115,12 @@ export class AddReagentPage implements OnInit {
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
       this.scannedCode = barcodeData;
-
+      //this.confirmBox()
       // Patch value to form
       const newNestedArray = this.reagentForm.get('reagents') as FormArray;
       const newNestedGroup = newNestedArray.controls[key.toString()];
-      newNestedGroup.controls['reagents'].patchValue(this.scannedCode.text);
+      newNestedGroup.controls['reagent'].patchValue(this.scannedCode.text);
+      this.getReagent(key)
     }).catch(err => {
       console.log('Error', err);
     });
@@ -169,8 +170,8 @@ export class AddReagentPage implements OnInit {
     await alert.present();
   }
 
-  getReagent(event, key) {
-    console.log("reagent id changed", event.target.value, key);
+  getReagent( key) {
+    //console.log("reagent id changed", event.target.value, key);
     console.log(this.reagentForm.get('reagents').get(key.toString()).get('reagent').value);
    
     if (this.reagentForm.value.reagents[key].reagent !== ""){
@@ -195,12 +196,12 @@ export class AddReagentPage implements OnInit {
           if ((data[0] !== null)){
             this.showReagent(data[0], key, 'Primary');
             this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
-          }
+          }//if choose delete in showReagent, the lotNr will still be patched, this may cause problem
           
           //secondary reagent
           else {
             this.showReagent(data[1], key, 'Secondary');
-            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[1].lotNr);
           }
         }
       }, error => {

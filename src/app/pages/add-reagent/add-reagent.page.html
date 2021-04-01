@@ -36,7 +36,7 @@
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Date made</ion-label>
-            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" disabled="true"></ion-datetime>
+            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date" ></ion-datetime>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
@@ -57,7 +57,7 @@
               <div [formGroupName]="i">
                 <ion-item-sliding>
                   <ion-item>
-                    <ion-input type="text" formControlName="reagent" (change)="getReagent($event,i)"></ion-input>
+                    <ion-input type="text" formControlName="reagent" (change)="getReagent(i)"></ion-input>
                     <ion-button (click)=scan(i)>
                       <ion-icon name="qr-code"></ion-icon>
                     </ion-button>
