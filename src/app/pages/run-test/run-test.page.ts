@@ -20,6 +20,7 @@ export class RunTestPage {
   baseURI: string = environment.url;
   testTypesJson: any;
   equipment: FormArray;
+  submitAttempt: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -94,12 +95,13 @@ export class RunTestPage {
               // fields other than reagent ID
               oneGroup.addControl("key", new FormControl(child.key));
               oneGroup.addControl("label", new FormControl(child.label));
-              oneGroup.addControl("lotNr", new FormControl(''));
+              oneGroup.addControl("lotNr", new FormControl());
 
               // reagent ID
-              const fieldControl = new FormControl();
+              const fieldControl = new FormControl(null, 
+                [Validators.pattern(/\b[0-9A-Fa-f]{24}\b|\b\0\b/g)]); // 24-digit hex or null
               if (child.required) {
-                fieldControl.setValidators(Validators.required);
+                fieldControl.setValidators([Validators.required, Validators.pattern(/\b[0-9A-Fa-f]{24}\b/g)]);
               }
               oneGroup.addControl("reagent", fieldControl);
 
@@ -471,17 +473,39 @@ export class RunTestPage {
           text: 'Yes',
           handler: () => {
             console.log('Save Yes');
+            this.submitAttempt = true;
             console.log("submitted value", this.testForm.value);
             let reqArray = [];
 
+            // check if valid
+            if(!this.testForm.valid) {
+              this.confirmBox("Invalid input");
+              return;
+            }
+
+            // remove empty/null equipment/reagents
+            let testFormValueSubmit = JSON.parse(JSON.stringify(this.testForm.value));
+            for(var i in testFormValueSubmit.equipment ) {
+              if (testFormValueSubmit.equipment[i].eqptNr == "" || 
+                testFormValueSubmit.equipment[i].eqptNr == null) {
+                  delete testFormValueSubmit.equipment[i];
+                }
+            }
+            for(var i in testFormValueSubmit.reagents ) {
+              if (testFormValueSubmit.reagents[i].reagent == "" || 
+                testFormValueSubmit.reagents[i].reagent == null) {
+                  delete testFormValueSubmit.reagents[i];
+                }
+            }
+
             // request to save test            
             const submitUrl = this.baseURI + "tests";
-            const submitReq = this.http.post(submitUrl, this.testForm.value);
+            const submitReq = this.http.post(submitUrl, testFormValueSubmit);
             reqArray.push(submitReq);
 
             // requests to update reagent 
-            for (let i in this.testForm.value.reagents){
-              const reagentID = this.testForm.value.reagents[i].reagent
+            for (let i in testFormValueSubmit.reagents){
+              const reagentID = testFormValueSubmit.reagents[i].reagent
               
               // primary reagents              
               const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
@@ -507,6 +531,7 @@ export class RunTestPage {
 
                 // reset form control
                 this.createStaticControl();
+                this.submitAttempt = false;
 
                 // prompt confirmation box
                 this.confirmBox('Record saved!');

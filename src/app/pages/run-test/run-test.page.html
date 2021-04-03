@@ -40,8 +40,15 @@
         <ion-col size-lg="6" size="12">
           <ion-item>
             <ion-label >Batch Number</ion-label>
-            <ion-input class="ion-text-right" formControlName="batchNr" type="text" placeholder="" 
+            <ion-input class="ion-text-right" formControlName="batchNr" 
+              type="text" placeholder="" 
             clear-input="false"></ion-input>
+          </ion-item>
+          <ion-item 
+            class="error-message" 
+            *ngIf="!testForm.controls.batchNr.valid  && (testForm.controls.batchNr.dirty || submitAttempt)"
+            lines="none">
+            <p>Please enter a valid value.</p>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -83,6 +90,12 @@
                                 <ion-icon name="qr-code"></ion-icon>
                               </ion-button>
                             </ion-item>
+                            <ion-item 
+                              class="error-message" 
+                              *ngIf="!testForm.get('reagents').controls[i].controls.reagent.valid  && (testForm.get('reagents').controls[i].controls.reagent.dirty || submitAttempt)"
+                              lines="none">
+                              <p>Please enter a valid value (24-digit hex number). </p>
+                            </ion-item>
                           </div>
                         </div>
                       </div>
@@ -101,6 +114,12 @@
                               <ion-datetime *ngSwitchCase="'date'" formControlName="value"
                               (ionFocus)="setUpDatePicker(d.key,i)" [pickerOptions]="customPickerOptions"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
+                            </ion-item>
+                            <ion-item 
+                              class="error-message" 
+                              *ngIf="!testForm.get('reagentData').controls[i].controls.value.valid  && (testForm.get('reagentData').controls[i].controls.value.dirty || submitAttempt)"
+                              lines="none">
+                              <p>Please enter a valid value (24-digit hex number). </p>
                             </ion-item>
                           </div>
                         </div>
@@ -132,6 +151,12 @@
                     <ion-button slot="end" fill="clear" class="ion-align-self-center" (click)=removeEqpt(i)>
                       <ion-icon name="remove"></ion-icon>
                     </ion-button>
+                  </ion-item>
+                  <ion-item 
+                    class="error-message" 
+                    *ngIf="!testForm.get('equipment').controls[i].controls.eqptNr.valid  && (testForm.get('equipment').controls[i].controls.eqptNr.dirty || submitAttempt)"
+                    lines="none">
+                    <p>Please enter a valid value (24-digit hex number). </p>
                   </ion-item>
                 </div>
                 <!-- Exposed item name: {{testForm.controls.equipment.controls[i].value}} -->
@@ -171,7 +196,7 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ion-button type="submit" id="save" expand="block" [disabled]="!testForm.valid">Save</ion-button>
+      <ion-button type="submit" id="save" expand="block">Save</ion-button>
     </div>
   </form>
 
@@ -182,3 +207,4 @@
 </ion-content>
 
 <!-- (ionChange)="getDate($event,d.key,i)" -->
+<!-- [disabled]="!testForm.valid" -->
