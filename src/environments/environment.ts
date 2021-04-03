@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  // url: 'https://goshdrive.azurewebsites.net/'
-  url: 'http://localhost:3000/'  
+  url: 'https://goshdrive.azurewebsites.net/'
+  // url: 'http://localhost:3000/'  
 };
 
 /*
