@@ -35,7 +35,15 @@ export class RunTestPage {
 
     /* retrieve testTypes JSON from server */
     let url = this.baseURI + "test-types";
-    this.http.get(url).subscribe(data => {
+    this.http.get(url)
+      .pipe(
+        map((rawdata: any[]) => rawdata.sort((a1, a2) => {
+          if(a1.assayName < a2.assayName) return -1;
+          if(a1.assayName > a2.assayName) return 1;
+          return 0;
+        }))
+      )
+      .subscribe(data => {
       this.testTypesJson = data;
       console.log("JSON from server: ", data);
     }, error => console.log(error));
@@ -471,15 +479,25 @@ export class RunTestPage {
             const submitReq = this.http.post(submitUrl, this.testForm.value);
             reqArray.push(submitReq);
 
-            // requests to update reagent (only needed for primary reagent)
+            // requests to update reagent 
             for (let i in this.testForm.value.reagents){
               const reagentID = this.testForm.value.reagents[i].reagent
+              
+              // primary reagents              
               const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
               const priReagentUpdateReq = this.http.put(
                 priReagentUpdateUrl, 
                 {}, 
                 {params: new HttpParams().set("action", "firstTest")});
               reqArray.push(priReagentUpdateReq);
+
+              // secondary reagents
+              const secReagentUpdateUrl = this.baseURI + "secondary-reagents/" + reagentID;
+              const secReagentUpdateReq = this.http.put(
+                secReagentUpdateUrl, 
+                {}, 
+                {params: new HttpParams().set("action", "firstTest")});
+              reqArray.push(secReagentUpdateReq);
             };
 
             // post to database
