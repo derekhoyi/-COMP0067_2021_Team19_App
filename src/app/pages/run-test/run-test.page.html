@@ -54,7 +54,7 @@
           <!-- Reagents -->
           <ion-col size-lg="4" size="12">
             <ion-list-header lines="full">
-              <ion-label>Reagents</ion-label>
+              <ion-label color="primary">Reagents</ion-label>
             </ion-list-header>
             <div *ngFor="let c of testTypesJson">
               <div *ngIf="c.assayName == testForm.value.assayName">
@@ -116,7 +116,7 @@
           <ion-col size-lg="4" size="12">
             <ion-list>
               <ion-list-header lines="full">
-                <ion-label>Equipment</ion-label>
+                <ion-label color="primary">Equipment</ion-label>
                 <ion-button fill="clear" (click)="addEqpt()">
                   <ion-icon name="add-outline"></ion-icon>
                 </ion-button>
@@ -142,7 +142,7 @@
           <!-- Other -->
           <ion-col size-lg="4" size="12">
             <ion-list-header lines="full">
-              <ion-label>Others</ion-label>
+              <ion-label color="primary">Others</ion-label>
             </ion-list-header>
             <div *ngFor="let c of testTypesJson">
               <div *ngIf="c.assayName == testForm.value.assayName">
