@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
@@ -28,7 +28,13 @@ export class RunTestPage {
     private barcodeScanner: BarcodeScanner,
     private http: HttpClient,
     private authService: AuthService, 
-  ) { }
+    private platform: Platform
+  ) {
+    // this.platform.backButton.subscribeWithPriority(10, () => {
+    //   console.log('Handler was called!');
+    //   this.logout();
+    // });
+  }
 
   ngOnInit() {
     /* create static form control */
@@ -211,6 +217,7 @@ export class RunTestPage {
     this.createStaticControl();
     this.testForm.controls.assayName.patchValue(tempAssayName);
     this.testForm.controls.batchNr.patchValue(tempBatchNumber);
+    this.submitAttempt = false;
 
     // create dynamic control
     this.createDynamicControl(this.testTypesJson);
@@ -479,7 +486,7 @@ export class RunTestPage {
 
             // check if valid
             if(!this.testForm.valid) {
-              this.confirmBox("Invalid input");
+              this.confirmBox("Invalid input"); 
               return;
             }
 
