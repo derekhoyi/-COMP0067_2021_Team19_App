@@ -106,15 +106,24 @@ export class ScannerPage {
           cssClass: 'secondary',
           handler: () => {
             const disposeUrl = this.baseURI + type + "/" + info._id
-            const disposeReq = this.http.put(disposeUrl, {},{params: new HttpParams().set("action", "discard")});
+            const disposeReq = this.http.put(
+              disposeUrl, 
+              {}, 
+              {params: new HttpParams().set("action", "discard")});
             console.log('Show reagent: dispose');
+            disposeReq.subscribe(data => {
+              console.log("submission result:", data);
+              this.confirmBox('Reagent discarded!');
+              }, error => {
+                this.confirmBox(error.message);
+                console.log(error)
+                });
           }
         }, 
         {
           text: 'back',
           handler: () => {
             console.log('Show reagent: ok');
-            this.scan()
           }
         }
       ]
