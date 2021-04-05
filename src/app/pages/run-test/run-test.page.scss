@@ -10,3 +10,18 @@
   font-size: 0.75rem;
   color:grey;
 }
+
+.list-md {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.md ion-list-header {
+  // --background: var(--ion-color-list-header-background);
+  padding-top: 10px;
+}
+
+.error-message {
+  font-size: 0.7em;
+  color: var(--ion-color-danger);
+}

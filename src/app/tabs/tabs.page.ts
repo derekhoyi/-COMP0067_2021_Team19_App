@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-tabs',
@@ -7,6 +8,10 @@ import { Component } from '@angular/core';
 })
 export class TabsPage {
 
-  constructor() {}
+  constructor(private platform: Platform) {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      console.log('Handler was called!');
+    });
+  }
 
 }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from "@angular/forms";
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
@@ -20,6 +20,7 @@ export class RunTestPage {
   baseURI: string = environment.url;
   testTypesJson: any;
   equipment: FormArray;
+  submitAttempt: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -27,7 +28,13 @@ export class RunTestPage {
     private barcodeScanner: BarcodeScanner,
     private http: HttpClient,
     private authService: AuthService, 
-  ) { }
+    private platform: Platform
+  ) {
+    // this.platform.backButton.subscribeWithPriority(10, () => {
+    //   console.log('Handler was called!');
+    //   this.logout();
+    // });
+  }
 
   ngOnInit() {
     /* create static form control */
@@ -35,7 +42,15 @@ export class RunTestPage {
 
     /* retrieve testTypes JSON from server */
     let url = this.baseURI + "test-types";
-    this.http.get(url).subscribe(data => {
+    this.http.get(url)
+      .pipe(
+        map((rawdata: any[]) => rawdata.sort((a1, a2) => {
+          if(a1.assayName < a2.assayName) return -1;
+          if(a1.assayName > a2.assayName) return 1;
+          return 0;
+        }))
+      )
+      .subscribe(data => {
       this.testTypesJson = data;
       console.log("JSON from server: ", data);
     }, error => console.log(error));
@@ -86,12 +101,13 @@ export class RunTestPage {
               // fields other than reagent ID
               oneGroup.addControl("key", new FormControl(child.key));
               oneGroup.addControl("label", new FormControl(child.label));
-              oneGroup.addControl("lotNr", new FormControl(''));
+              oneGroup.addControl("lotNr", new FormControl());
 
               // reagent ID
-              const fieldControl = new FormControl();
+              const fieldControl = new FormControl(null, 
+                [Validators.pattern(/\b[0-9A-Fa-f]{24}\b|\b\0\b/g)]); // 24-digit hex or null
               if (child.required) {
-                fieldControl.setValidators(Validators.required);
+                fieldControl.setValidators([Validators.required, Validators.pattern(/\b[0-9A-Fa-f]{24}\b/g)]);
               }
               oneGroup.addControl("reagent", fieldControl);
 
@@ -201,6 +217,7 @@ export class RunTestPage {
     this.createStaticControl();
     this.testForm.controls.assayName.patchValue(tempAssayName);
     this.testForm.controls.batchNr.patchValue(tempBatchNumber);
+    this.submitAttempt = false;
 
     // create dynamic control
     this.createDynamicControl(this.testTypesJson);
@@ -463,23 +480,55 @@ export class RunTestPage {
           text: 'Yes',
           handler: () => {
             console.log('Save Yes');
+            this.submitAttempt = true;
             console.log("submitted value", this.testForm.value);
             let reqArray = [];
 
+            // check if valid
+            if(!this.testForm.valid) {
+              this.confirmBox("Invalid input"); 
+              return;
+            }
+
+            // remove empty/null equipment/reagents
+            let testFormValueSubmit = JSON.parse(JSON.stringify(this.testForm.value));
+            for(var i in testFormValueSubmit.equipment ) {
+              if (testFormValueSubmit.equipment[i].eqptNr == "" || 
+                testFormValueSubmit.equipment[i].eqptNr == null) {
+                  delete testFormValueSubmit.equipment[i];
+                }
+            }
+            for(var i in testFormValueSubmit.reagents ) {
+              if (testFormValueSubmit.reagents[i].reagent == "" || 
+                testFormValueSubmit.reagents[i].reagent == null) {
+                  delete testFormValueSubmit.reagents[i];
+                }
+            }
+
             // request to save test            
             const submitUrl = this.baseURI + "tests";
-            const submitReq = this.http.post(submitUrl, this.testForm.value);
+            const submitReq = this.http.post(submitUrl, testFormValueSubmit);
             reqArray.push(submitReq);
 
-            // requests to update reagent (only needed for primary reagent)
-            for (let i in this.testForm.value.reagents){
-              const reagentID = this.testForm.value.reagents[i].reagent
+            // requests to update reagent 
+            for (let i in testFormValueSubmit.reagents){
+              const reagentID = testFormValueSubmit.reagents[i].reagent
+              
+              // primary reagents              
               const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
               const priReagentUpdateReq = this.http.put(
                 priReagentUpdateUrl, 
                 {}, 
                 {params: new HttpParams().set("action", "firstTest")});
               reqArray.push(priReagentUpdateReq);
+
+              // secondary reagents
+              const secReagentUpdateUrl = this.baseURI + "secondary-reagents/" + reagentID;
+              const secReagentUpdateReq = this.http.put(
+                secReagentUpdateUrl, 
+                {}, 
+                {params: new HttpParams().set("action", "firstTest")});
+              reqArray.push(secReagentUpdateReq);
             };
 
             // post to database
@@ -489,6 +538,7 @@ export class RunTestPage {
 
                 // reset form control
                 this.createStaticControl();
+                this.submitAttempt = false;
 
                 // prompt confirmation box
                 this.confirmBox('Record saved!');
