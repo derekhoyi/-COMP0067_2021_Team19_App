@@ -1,6 +1,6 @@
 {
   "appId": "io.ionic.starter",
-  "appName": "myApp",
+  "appName": "Laboratory Assay Reagent Audits",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
