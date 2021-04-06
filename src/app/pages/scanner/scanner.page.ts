@@ -138,7 +138,39 @@ export class ScannerPage {
   ngOnInit() {
     this.scan()
   }
-  
+  dispose(id, type){
+    if ((type == 'Primary')){
+      const disposeUrl = this.baseURI + 'reagents' + "/" + id
+      const disposeReq = this.http.put(
+        disposeUrl, 
+        {}, 
+        {params: new HttpParams().set("action", "discard")});
+      disposeReq.subscribe(data => {
+        console.log("submission result:", data);
+        this.confirmBox('Reagent discarded!');
+        }, error => {
+          this.confirmBox(error.message);
+          console.log(error)
+          }
+      );
+    } else if ((type == 'Secondary')){
+      const disposeUrl = this.baseURI + 'secondary-reagents' + "/" + id
+      const disposeReq = this.http.put(
+        disposeUrl, 
+        {}, 
+        {params: new HttpParams().set("action", "discard")});
+      disposeReq.subscribe(data => {
+        console.log("submission result:", data);
+        this.confirmBox('Reagent discarded!');
+        }, error => {
+          this.confirmBox(error.message);
+          console.log(error)
+          }
+      );
+    };
+
+  };
+
   // log out
   logout() {
     this.authService.logout();
