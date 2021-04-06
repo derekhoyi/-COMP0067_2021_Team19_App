@@ -16,7 +16,8 @@ export class ScannerPage {
   scannedCodeText: string;
   baseURI: string = environment.url;
   httpOptions: any;
-
+  reagentInfo: any ='321';
+  reagentType: string = '';
   constructor(
     private alertCtrl: AlertController,
     private barcodeScanner: BarcodeScanner,
@@ -58,11 +59,15 @@ export class ScannerPage {
           // primary reagent
           if ((data[0] !== null)){
             this.showReagent(data[0], 'Primary');
+            this.reagentInfo = data[0];
+            this.reagentType = 'Primary'
           }
           
           //secondary reagent
           else {
             this.showReagent(data[1], 'Secondary');
+            this.reagentInfo = data[1];
+            this.reagentType = 'Secondary'
           }
         }
       }, error => {
