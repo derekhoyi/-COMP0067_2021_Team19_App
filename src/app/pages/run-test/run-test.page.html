@@ -76,12 +76,16 @@
                           <div [ngSwitch]="d.children[i].type">
                             <ion-item>
                               <ion-label position="stacked">
-                                <div style="display: inline-block">{{ d.children[i].label }}</div>
+                                <!-- <div style="display: inline-block">{{ d.children[i].label }}</div>
                                 <div style="display: inline-block" class="lotNumber ion-text-right">
-                                  &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div>
+                                  &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div> -->
+                                {{ d.children[i].label }} 
+                              </ion-label>
+                              <ion-label position="stacked" class="lotNumber">
+                                Lot number: {{ testForm.value.reagents[i].lotNr }}
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
-                              type="text" clear-input="false"
+                              type="text" clear-input="false" class="reagentID"
                               (change)="getReagent(i)"
                               (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
