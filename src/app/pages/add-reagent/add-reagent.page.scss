@@ -5,3 +5,25 @@
   margin-left: 10px;
   // max-width: 500px;
 }
+
+.md .lotNumber {
+  font-size: 1.2rem;
+}
+
+.ios .lotNumber {
+  font-size: 1rem;
+}
+
+.md .reagentID {
+  --padding-top: 10px;
+  --padding-bottom: 11px;
+  font-size: 0.6rem;
+  color: grey;
+}
+
+.ios .reagentID {
+  --padding-top: 2px;
+  --padding-bottom: 10px;
+  font-size: 0.75rem;
+  color: grey;
+}
