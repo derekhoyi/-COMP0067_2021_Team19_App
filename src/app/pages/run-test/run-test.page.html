@@ -76,12 +76,16 @@
                           <div [ngSwitch]="d.children[i].type">
                             <ion-item>
                               <ion-label position="stacked">
-                                <div style="display: inline-block">{{ d.children[i].label }}</div>
+                                <!-- <div style="display: inline-block">{{ d.children[i].label }}</div>
                                 <div style="display: inline-block" class="lotNumber ion-text-right">
-                                  &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div>
+                                  &nbsp;&nbsp; (Lot number: {{ testForm.value.reagents[i].lotNr }})</div> -->
+                                {{ d.children[i].label }} 
+                              </ion-label>
+                              <ion-label position="stacked" class="lotNumber">
+                                Lot number: {{ testForm.value.reagents[i].lotNr }}
                               </ion-label>
                               <ion-input *ngSwitchCase="'reagent'" formControlName="reagent" 
-                              type="text" clear-input="false"
+                              type="text" clear-input="false" class="reagentID"
                               (change)="getReagent(i)"
                               (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                               <ion-button *ngSwitchCase="'reagent'"
@@ -92,7 +96,7 @@
                             </ion-item>
                             <ion-item 
                               class="error-message" 
-                              *ngIf="!testForm.get('reagents').controls[i].controls.reagent.valid  && (testForm.get('reagents').controls[i].controls.reagent.dirty || submitAttempt)"
+                              *ngIf="!testForm.get('reagents').get(i.toString()).get('reagent').valid  && (testForm.get('reagents').get(i.toString()).get('reagent').dirty || submitAttempt)"
                               lines="none">
                               <p>Please enter a valid value (24-digit hex number). </p>
                             </ion-item>
@@ -111,13 +115,13 @@
                               <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="false"></ion-input>
-                              <ion-datetime *ngSwitchCase="'date'" formControlName="value"
+                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" max="2100-10-31"
                               (ionFocus)="setUpDatePicker(d.key,i)" [pickerOptions]="customPickerOptions"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                             <ion-item 
                               class="error-message" 
-                              *ngIf="!testForm.get('reagentData').controls[i].controls.value.valid  && (testForm.get('reagentData').controls[i].controls.value.dirty || submitAttempt)"
+                              *ngIf="!testForm.get('reagentData').get(i.toString()).get('value').valid  && (testForm.get('reagentData').get(i.toString()).get('value').dirty || submitAttempt)"
                               lines="none">
                               <p>Please enter a valid value (24-digit hex number). </p>
                             </ion-item>
@@ -154,7 +158,7 @@
                   </ion-item>
                   <ion-item 
                     class="error-message" 
-                    *ngIf="!testForm.get('equipment').controls[i].controls.eqptNr.valid  && (testForm.get('equipment').controls[i].controls.eqptNr.dirty || submitAttempt)"
+                    *ngIf="!testForm.get('equipment').get(i.toString()).get('eqptNr').valid  && (testForm.get('equipment').get(i.toString()).get('eqptNr').dirty || submitAttempt)"
                     lines="none">
                     <p>Please enter a valid value (24-digit hex number). </p>
                   </ion-item>
@@ -182,7 +186,7 @@
                               <ion-label position="stacked">{{ d.children[i].label }}</ion-label>
                               <ion-input *ngSwitchCase="'text'" formControlName="value" 
                               type="text" clear-input="true"></ion-input>
-                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" 
+                              <ion-datetime *ngSwitchCase="'date'" formControlName="value" max="2100-10-31"
                               displayFormat="YYYY-MM-DD"></ion-datetime>
                             </ion-item>
                           </div>
