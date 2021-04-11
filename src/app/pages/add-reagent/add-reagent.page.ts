@@ -1,5 +1,5 @@
 import { Component, OnInit} from '@angular/core';
-import {Validators, FormBuilder, FormGroup, FormControl,FormArray } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, FormControl,FormArray } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -18,6 +18,9 @@ export class AddReagentPage implements OnInit {
   baseURI: string = environment.url;
   httpOptions: any;
   reagents: FormArray;
+  submitAttempt: boolean;
+  myDate: String = new Date().toISOString();
+
   constructor(
     private fb: FormBuilder,
     private alertCtrl: AlertController,
@@ -31,23 +34,22 @@ export class AddReagentPage implements OnInit {
 
   createStaticControl(){
     this.reagentForm = this.fb.group({
-      reagentName: [''],
-      lotNr:[''],
-      dateCreated:[this.myDate],
-      expiryDate:[''],
+      reagentName: new FormControl('', Validators.required),
+      lotNr: new FormControl('', Validators.required),
+      dateCreated:new FormControl(this.myDate, Validators.required),
+      expiryDate: new FormControl('', Validators.required), 
       reagents: this.fb.array([]),
     });
 
   }
-  myDate: String = new Date().toISOString();
   /*addComponent(){
     this.reagents.push(this.fb.control(''));
   };*/
     // Add/remove equipment
   createComponent(): FormGroup {
     return this.fb.group({
-    reagent:[''],
-    lotNr: [''], });
+    reagent: new FormControl(null, [Validators.pattern(/\b[0-9A-Fa-f]{24}\b|\b\0\b/g)]),
+    lotNr: null, });
   }
   addComponent(): void {
     this.reagents = this.reagentForm.get('reagents') as FormArray;
@@ -60,6 +62,9 @@ export class AddReagentPage implements OnInit {
   };
 
   getDate(e) {
+    if (e.target.value == ''){
+      return;
+    };
     let date = new Date(e.target.value).toISOString();
     this.reagentForm.get(e.target.getAttribute('formControlName')).setValue(date, {
        onlyself: true
@@ -82,19 +87,36 @@ export class AddReagentPage implements OnInit {
           text: 'Yes',
           handler: () => {
             console.log('Save Yes');
+            this.submitAttempt = true;
             console.log("submitted value", this.reagentForm.value);
             let reqArray = [];
 
+            // check if valid
+            if(!this.reagentForm.valid) {
+              this.confirmBox("Invalid input"); 
+              return;
+            }
+            
+            // remove empty/null equipment/reagents
+            let reagentFormValueSubmit = JSON.parse(JSON.stringify(this.reagentForm.value));
+            for(let i = reagentFormValueSubmit.reagents.length - 1; i >= 0; i--) {
+              if (reagentFormValueSubmit.reagents[i].reagent == "" || 
+              reagentFormValueSubmit.reagents[i].reagent == null) {
+                  reagentFormValueSubmit.reagents.splice(i,1);
+                }
+            }
+
             // request to save test            
             const submitUrl = this.baseURI + "secondary-reagents";
-            const submitReq = this.http.post(submitUrl, this.reagentForm.value);
-            console.log(this.reagentForm.value)
+            const submitReq = this.http.post(submitUrl, reagentFormValueSubmit);
+            console.log('submitted value (final)', reagentFormValueSubmit);
             reqArray.push(submitReq);
 
             // requests to update reagent 
-            for (let i in this.reagentForm.get('reagents').value){
+            for (let i in reagentFormValueSubmit.reagents){
               console.log(i)
-              const reagentID = this.reagentForm.get('reagents').get(i).get('reagent').value
+              const reagentID = reagentFormValueSubmit.reagents[i].reagent
+
               // primary reagents              
               const priReagentUpdateUrl = this.baseURI + "reagents/" + reagentID;
               const priReagentUpdateReq = this.http.put(
@@ -119,6 +141,7 @@ export class AddReagentPage implements OnInit {
 
                 // reset form control
                 this.createStaticControl();
+                this.submitAttempt = false;
 
                 // prompt confirmation box
                 this.confirmBox('Record saved!');
@@ -155,11 +178,11 @@ export class AddReagentPage implements OnInit {
     const expiryDateFormatted = new Date(info.expiryDate).getTime();
     const dateNow = new Date().getTime();
     if (expiryDateFormatted < dateNow){
-      headerText = "Reagent Expired!";
+      headerText = "Reagent Expired! ";
     }
-    else {
-      headerText = "";
-    }
+    if (info.status == "DISPOSED"){
+      headerText = headerText.concat("Reagent is marked for disposal!");
+    };
 
     // set message
     let messageText = 
@@ -196,6 +219,7 @@ export class AddReagentPage implements OnInit {
   getReagent( key) {
     //console.log("reagent id changed", event.target.value, key);
     console.log(this.reagentForm.get('reagents').get(key.toString()).get('reagent').value);
+    this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
    
     if (this.reagentForm.value.reagents[key].reagent !== ""){
       const priReagentUrl = this.baseURI + "reagents";
@@ -219,7 +243,7 @@ export class AddReagentPage implements OnInit {
           if ((data[0] !== null)){
             this.showReagent(data[0], key, 'Primary');
             this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
-          }//if choose delete in showReagent, the lotNr will still be patched, this may cause problem
+          }
           
           //secondary reagent
           else {
@@ -231,6 +255,13 @@ export class AddReagentPage implements OnInit {
         console.log(error);
         this.confirmBox('Cannot retrieve data');
       });
+    }
+  }
+
+  // clear lotNr if reagent id is empty
+  clearLotNumberIfEmpty(event, key){
+    if(event.target.value == ''){
+      this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
     }
   }
 

@@ -26,23 +26,41 @@
             <ion-label>Reagent Name</ion-label>
             <ion-input class="ion-text-right" formControlName="reagentName" type="text"></ion-input>
           </ion-item>
+          <ion-item 
+            class="error-message" 
+            *ngIf="!reagentForm.controls.reagentName.valid  && (reagentForm.controls.reagentName.dirty || submitAttempt)"
+            lines="none">
+            <p>Please enter a valid value.</p>
+          </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Lot Number</ion-label>
             <ion-input class="ion-text-right" formControlName="lotNr" type="text"></ion-input>
           </ion-item>
+          <ion-item 
+            class="error-message" 
+            *ngIf="!reagentForm.controls.lotNr.valid  && (reagentForm.controls.lotNr.dirty || submitAttempt)"
+            lines="none">
+            <p>Please enter a valid value.</p>
+          </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Date made</ion-label>
-            <ion-datetime formControlName="dateCreated" class="form-control" [(ngModel)]="myDate" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+            <ion-datetime formControlName="dateCreated" class="form-control" (ionChange)="getDate($event)" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
           </ion-item>
         </ion-col>
         <ion-col size-md="6" size="12">
           <ion-item>
             <ion-label>Expected expiry date</ion-label>
             <ion-datetime max="2100-10-31" formControlName="expiryDate" class="form-control" (ionChange)="getDate($event)" displayFormat="YYYY-MM-DD" placeholder="Select Date"></ion-datetime>
+          </ion-item>
+          <ion-item 
+            class="error-message" 
+            *ngIf="!reagentForm.controls.expiryDate.valid  && (reagentForm.controls.expiryDate.dirty || submitAttempt)"
+            lines="none">
+            <p>Please enter a valid value.</p>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -59,8 +77,8 @@
                   <ion-label class="lotNumber" position="stacked">
                       Lot number: {{ reagentForm.value.reagents[i].lotNr }}
                   </ion-label>
-
-                  <ion-input class="reagentID" type="text" formControlName="reagent" (change)="getReagent(i)"></ion-input>
+                  <ion-input class="reagentID" type="text" formControlName="reagent" 
+                  (change)="getReagent(i)" (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                   <ion-button (click)=scan(i) fill="clear" slot="end" class="ion-align-self-center">
                     <ion-icon name="qr-code"></ion-icon>
                   </ion-button>
@@ -71,6 +89,12 @@
                   </ion-item-option>
                 </ion-item-options>
               </ion-item-sliding>
+              <ion-item 
+                class="error-message" 
+                *ngIf="!reagentForm.get('reagents').get(i.toString()).get('reagent').valid  && (reagentForm.get('reagents').get(i.toString()).get('reagent').dirty || submitAttempt)"
+                lines="none">
+                <p>Please enter a valid value (24-digit hex number). </p>
+              </ion-item>
             </div>
           </ion-col>
         </ion-item>

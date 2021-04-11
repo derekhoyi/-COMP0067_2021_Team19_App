@@ -492,22 +492,25 @@ export class RunTestPage {
 
             // remove empty/null equipment/reagents
             let testFormValueSubmit = JSON.parse(JSON.stringify(this.testForm.value));
-            for(var i in testFormValueSubmit.equipment ) {
+            for(let i = testFormValueSubmit.equipment.length - 1; i >= 0; i-- ) {
               if (testFormValueSubmit.equipment[i].eqptNr == "" || 
                 testFormValueSubmit.equipment[i].eqptNr == null) {
-                  delete testFormValueSubmit.equipment[i];
+                  testFormValueSubmit.equipment.splice(i,1);
                 }
             }
-            for(var i in testFormValueSubmit.reagents ) {
-              if (testFormValueSubmit.reagents[i].reagent == "" || 
-                testFormValueSubmit.reagents[i].reagent == null) {
-                  delete testFormValueSubmit.reagents[i];
-                }
+            if (typeof testFormValueSubmit.reagents !== "undefined" ) {
+              for(let i = testFormValueSubmit.reagents.length - 1; i >= 0; i-- ) {
+                if (testFormValueSubmit.reagents[i].reagent == "" || 
+                  testFormValueSubmit.reagents[i].reagent == null) {
+                    testFormValueSubmit.reagents.splice(i,1);
+                  }
+              }
             }
-
+            
             // request to save test            
             const submitUrl = this.baseURI + "tests";
             const submitReq = this.http.post(submitUrl, testFormValueSubmit);
+            console.log('submitted value (final)', testFormValueSubmit);
             reqArray.push(submitReq);
 
             // requests to update reagent 
