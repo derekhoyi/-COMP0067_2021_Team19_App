@@ -393,7 +393,7 @@ export class RunTestPage {
 
     const alert = await this.alertCtrl.create({
       header: headerText,
-      subHeader: "ID: " + info._id,
+      // subHeader: "ID: " + info._id,
       message: messageText,
       buttons: [
         {

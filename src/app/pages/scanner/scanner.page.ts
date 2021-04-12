@@ -16,14 +16,20 @@ export class ScannerPage {
   scannedCodeText: string;
   baseURI: string = environment.url;
   httpOptions: any;
-  reagentInfo: any ='321';
-  reagentType: string = '';
+  reagentInfo: any;
+  reagentType: string;
+
   constructor(
     private alertCtrl: AlertController,
     private barcodeScanner: BarcodeScanner,
     private http: HttpClient,
     private authService: AuthService, 
   ) {}
+
+  ngOnInit() {
+    this.scan();
+    this.getReagent('60593f60654a0e113c4a9880'); // test
+  }
 
   scan() {
     this.scannedCode = null;
@@ -38,6 +44,7 @@ export class ScannerPage {
       console.log('Error', err);
     });
   }
+
   getReagent(reagentID) {
       const priReagentUrl = this.baseURI + "reagents";
       const priReagentReq = this.http.get(priReagentUrl+"/"+reagentID);
@@ -58,16 +65,25 @@ export class ScannerPage {
 
           // primary reagent
           if ((data[0] !== null)){
-            this.showReagent(data[0], 'Primary');
             this.reagentInfo = data[0];
-            this.reagentType = 'Primary'
+            this.reagentType = 'Primary';
+
+            // change date format
+            // if (this.reagentInfo.dateReceived) this.reagentInfo.dateReceived = this.reagentInfo.dateReceived.substring(0,10);
+            // if (this.reagentInfo.expiryDate) this.reagentInfo.expiryDate = this.reagentInfo.expiryDate.substring(0,10);
+            // if (this.reagentInfo.dateOfFirstUse) this.reagentInfo.dateOfFirstUse = this.reagentInfo.dateOfFirstUse.substring(0,10);
           }
           
-          //secondary reagent
+          // secondary reagent
           else {
-            this.showReagent(data[1], 'Secondary');
             this.reagentInfo = data[1];
-            this.reagentType = 'Secondary'
+            this.reagentType = 'Secondary';
+
+            // change date format
+            // if (this.reagentInfo.dateCreated) this.reagentInfo.dateCreated = this.reagentInfo.dateCreated.substring(0,10);
+            // if (this.reagentInfo.expiryDate) this.reagentInfo.expiryDate = this.reagentInfo.expiryDate.substring(0,10);
+            // if (this.reagentInfo.dateOfFirstUse) this.reagentInfo.dateOfFirstUse = this.reagentInfo.dateOfFirstUse.substring(0,10);
+
           }
         }
       }, error => {
@@ -75,106 +91,64 @@ export class ScannerPage {
         this.confirmBox('Cannot retrieve data');
       });
   }
-  async showReagent(info: any, cat: string) {
-
-    // set header 
-    let headerText = '';
-    let type = '';
-    const expiryDateFormatted = new Date(info.expiryDate).getTime();
-    const dateNow = new Date().getTime();
-    if (expiryDateFormatted < dateNow){
-      headerText = "Reagent Expired";
-    }
-    else {
-      headerText = "";
-    }
-    if (cat == 'Primary'){
-      type = 'reagents';
-    } else{
-      type = 'secondary-reagents';
-    }
-    // set message
-    let messageText = 
-      'Reagent Type: '+cat+'<br>'+
-      'Lot Number: '+info.lotNr+'<br>'+
-      'Expiry Date: '+info.expiryDate.substring(0,10)+'<br>'+
-      'Status: '+info.status;
-
+  
+  // dispose confirmation
+  async disposeConfirm(id, type) {
     const alert = await this.alertCtrl.create({
-      header: headerText,
-      subHeader: "ID: " + info._id,
-      message: messageText,
+      header: 'Dispose',
+      message: 'Do you want to dispose of the reagent?',
       buttons: [
         {
-          text: 'dispose',
+          text: 'No',
           role: 'cancel',
           cssClass: 'secondary',
           handler: () => {
-            const disposeUrl = this.baseURI + type + "/" + info._id
-            const disposeReq = this.http.put(
-              disposeUrl, 
-              {}, 
-              {params: new HttpParams().set("action", "discard")});
-            console.log('Show reagent: dispose');
-            disposeReq.subscribe(data => {
-              console.log("submission result:", data);
-              this.confirmBox('Reagent discarded!');
-              }, error => {
-                this.confirmBox(error.message);
-                console.log(error)
-                });
+            console.log('Dispose: No');
           }
-        }, 
-        {
-          text: 'back',
+        }, {
+          text: 'Yes',
           handler: () => {
-            console.log('Show reagent: ok');
+            console.log('Dispose: Yes');
+            this.dispose(this.reagentInfo._id, this.reagentType);
           }
         }
       ]
     });
     await alert.present();
   }
-  ngOnInit() {
-    this.scan()
-  }
+
+  // dispose of a reagent
   dispose(id, type){
+    if (id == null || id == '' || type == null || type == ''){
+      this.confirmBox('Reagent not found');
+      return;
+    }
+
     if ((type == 'Primary')){
-      const disposeUrl = this.baseURI + 'reagents' + "/" + id
-      const disposeReq = this.http.put(
-        disposeUrl, 
-        {}, 
-        {params: new HttpParams().set("action", "discard")});
-      disposeReq.subscribe(data => {
-        console.log("submission result:", data);
-        this.confirmBox('Reagent discarded!');
-        }, error => {
-          this.confirmBox(error.message);
-          console.log(error)
-          }
-      );
+      var disposeUrl = this.baseURI + 'reagents' + "/" + id
     } else if ((type == 'Secondary')){
-      const disposeUrl = this.baseURI + 'secondary-reagents' + "/" + id
-      const disposeReq = this.http.put(
-        disposeUrl, 
-        {}, 
-        {params: new HttpParams().set("action", "discard")});
-      disposeReq.subscribe(data => {
-        console.log("submission result:", data);
-        this.confirmBox('Reagent discarded!');
-        }, error => {
-          this.confirmBox(error.message);
-          console.log(error)
-          }
-      );
+      var disposeUrl = this.baseURI + 'secondary-reagents' + "/" + id
     };
 
+    const disposeReq = this.http.put(
+      disposeUrl, 
+      {}, 
+      {params: new HttpParams().set("action", "discard")});
+    disposeReq.subscribe(data => {
+      console.log("submission result:", data);
+      this.confirmBox('Reagent discarded!');
+      }, error => {
+        this.confirmBox(error.message);
+        console.log(error)
+        }
+    );
   };
 
   // log out
   logout() {
     this.authService.logout();
   }
+
   async confirmBox(msg: string) {
     const alert = await this.alertCtrl.create({
       header: msg,
