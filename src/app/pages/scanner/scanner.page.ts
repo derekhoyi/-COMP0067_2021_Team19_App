@@ -28,7 +28,7 @@ export class ScannerPage {
 
   ngOnInit() {
     this.scan();
-    this.getReagent('60593f60654a0e113c4a9880'); // test
+    this.getReagent('60593f60654a0e113c4a9883'); // test
   }
 
   scan() {
@@ -136,7 +136,7 @@ export class ScannerPage {
       {params: new HttpParams().set("action", "discard")});
     disposeReq.subscribe(data => {
       console.log("submission result:", data);
-      this.confirmBox('Reagent discarded!');
+      this.confirmBox('Reagent disposed of!');
       }, error => {
         this.confirmBox(error.message);
         console.log(error)

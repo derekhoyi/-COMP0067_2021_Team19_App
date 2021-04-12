@@ -114,7 +114,6 @@ export class AddReagentPage implements OnInit {
 
             // requests to update reagent 
             for (let i in reagentFormValueSubmit.reagents){
-              console.log(i)
               const reagentID = reagentFormValueSubmit.reagents[i].reagent
 
               // primary reagents              
