@@ -522,7 +522,9 @@ export class RunTestPage {
               const priReagentUpdateReq = this.http.put(
                 priReagentUpdateUrl, 
                 {}, 
-                {params: new HttpParams().set("action", "firstTest")});
+                {params: new HttpParams()
+                  .set("action", "firstTest")
+                  .set("assayName", this.testForm.value.assayName)});
               reqArray.push(priReagentUpdateReq);
 
               // secondary reagents
@@ -530,7 +532,9 @@ export class RunTestPage {
               const secReagentUpdateReq = this.http.put(
                 secReagentUpdateUrl, 
                 {}, 
-                {params: new HttpParams().set("action", "firstTest")});
+                {params: new HttpParams()
+                  .set("action", "firstTest")
+                  .set("assayName", this.testForm.value.assayName)});
               reqArray.push(secReagentUpdateReq);
             };
 
