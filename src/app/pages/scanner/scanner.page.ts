@@ -17,7 +17,7 @@ export class ScannerPage {
   baseURI: string = environment.url;
   httpOptions: any;
   reagentInfo: any;
-  reagentType: string;
+  reagentType: string = '';
 
   constructor(
     private alertCtrl: AlertController,
@@ -28,16 +28,18 @@ export class ScannerPage {
 
   ngOnInit() {
     this.scan();
-    // this.getReagent('60593f60654a0e113c4a9883'); 
+    this.getReagent('60593f60654a0e113c4a9883'); 
   }
 
   scan() {
     this.scannedCode = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
-      this.scannedCode = barcodeData;
-      this.scannedCodeText = this.scannedCode.text;
-      this.getReagent(this.scannedCodeText)
+      if (barcodeData.cancelled !== true){
+        this.scannedCode = barcodeData;
+        this.scannedCodeText = this.scannedCode.text;
+        this.getReagent(this.scannedCodeText)
+      }
       //this.confirmBox(this.scannedCodeText);
       //return this.scannedCodeText;
     }).catch(err => {
@@ -93,7 +95,7 @@ export class ScannerPage {
   }
   
   // dispose confirmation
-  async disposeConfirm(id, type) {
+  async disposeConfirm() {
     const alert = await this.alertCtrl.create({
       header: 'Dispose',
       message: 'Do you want to dispose of the reagent?',
