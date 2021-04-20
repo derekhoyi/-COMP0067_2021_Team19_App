@@ -75,10 +75,14 @@
               <ion-item-sliding>
                 <ion-item>
                   <ion-label class="lotNumber" position="stacked">
-                      Lot number: {{ reagentForm.value.reagents[i].lotNr }}
+                    Lot number: {{ reagentForm.value.reagents[i].lotNr }}
                   </ion-label>
-                  <ion-input class="reagentID" type="text" formControlName="reagent" 
-                  (change)="getReagent(i)" (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
+                  <ion-label class="lotNumber" position="stacked">
+                    Name: {{ reagentForm.value.reagents[i].reagentname }}
+                  </ion-label>
+
+                  <ion-input class="reagentID" type="text" formControlName="reagent"
+                             (change)="getReagent(i)" (ionChange)="clearLotNumberIfEmpty($event, i)"></ion-input>
                   <ion-button (click)=scan(i) fill="clear" slot="end" class="ion-align-self-center">
                     <ion-icon name="qr-code"></ion-icon>
                   </ion-button>

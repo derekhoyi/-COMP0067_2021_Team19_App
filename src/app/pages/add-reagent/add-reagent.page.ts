@@ -49,7 +49,8 @@ export class AddReagentPage implements OnInit {
   createComponent(): FormGroup {
     return this.fb.group({
     reagent: new FormControl(null, [Validators.pattern(/\b[0-9A-Fa-f]{24}\b|\b\0\b/g)]),
-    lotNr: null, });
+    lotNr: null,
+    reagentName: null,});
   }
   addComponent(): void {
     this.reagents = this.reagentForm.get('reagents') as FormArray;
@@ -242,12 +243,16 @@ export class AddReagentPage implements OnInit {
           if ((data[0] !== null)){
             this.showReagent(data[0], key, 'Primary');
             this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[0].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('reagentName').patchValue(data[0].reagentName);
+
           }
           
           //secondary reagent
           else {
             this.showReagent(data[1], key, 'Secondary');
             this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue(data[1].lotNr);
+            this.reagentForm.get('reagents').get(key.toString()).get('reagentName').patchValue(data[0].reagentName);
+
           }
         }
       }, error => {
