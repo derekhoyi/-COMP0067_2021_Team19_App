@@ -1,5 +1,5 @@
 {
-  "appId": "io.ionic.starter",
+  "appId": "com.goshdrive.labassist",
   "appName": "LabAssist",
   "bundledWebRuntime": false,
   "npmClient": "npm",
