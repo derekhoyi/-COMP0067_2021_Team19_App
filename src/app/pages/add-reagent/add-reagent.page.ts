@@ -220,7 +220,8 @@ export class AddReagentPage implements OnInit {
     //console.log("reagent id changed", event.target.value, key);
     console.log(this.reagentForm.get('reagents').get(key.toString()).get('reagent').value);
     this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
-   
+    this.reagentForm.get('reagents').get(key.toString()).get('reagentName').patchValue('');
+
     if (this.reagentForm.value.reagents[key].reagent !== ""){
       const priReagentUrl = this.baseURI + "reagents";
       const priReagentReq = this.http.get(priReagentUrl+"/"+this.reagentForm.value.reagents[key].reagent);
@@ -266,6 +267,7 @@ export class AddReagentPage implements OnInit {
   clearLotNumberIfEmpty(event, key){
     if(event.target.value == ''){
       this.reagentForm.get('reagents').get(key.toString()).get('lotNr').patchValue('');
+      this.reagentForm.get('reagents').get(key.toString()).get('reagentName').patchValue('');
     }
   }
 
