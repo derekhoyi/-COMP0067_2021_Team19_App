@@ -30,6 +30,6 @@ npm-debug.log*
 /plugins
 /www
 /.vs
-/android
+# /android
 config.xml
 /resources
