@@ -22,6 +22,7 @@
     "@auth0/angular-jwt": "^5.0.2",
     "@capacitor/android": "^2.4.6",
     "@capacitor/core": "2.4.6",
+    "@capacitor/ios": "^2.4.6",
     "@ionic-native/barcode-scanner": "^5.31.1",
     "@ionic-native/core": "^5.31.1",
     "@ionic/angular": "^5.5.2",
@@ -34,7 +35,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1101.4",
-    "@angular/cli": "~11.1.4",
+    "@angular/cli": "11.1.4",
     "@angular/compiler": "~11.2.0",
     "@angular/compiler-cli": "~11.2.0",
     "@angular/language-service": "~11.2.0",
