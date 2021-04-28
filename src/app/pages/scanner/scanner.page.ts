@@ -28,7 +28,7 @@ export class ScannerPage {
 
   ngOnInit() {
     this.scan();
-    this.getReagent('60593f60654a0e113c4a9863'); 
+    // this.getReagent('60593f60654a0e113c4a9863'); 
   }
 
   scan() {
